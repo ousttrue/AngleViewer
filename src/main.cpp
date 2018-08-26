@@ -92,7 +92,23 @@ int WINAPI WinMain(
 
 	RegisterClassEx(&wndclass);
 
-	GlRenderer renderer;
+	auto vShaderStr =
+		"attribute vec4 vPosition;   \n"
+		"void main()                 \n"
+		"{                           \n"
+		"  gl_Position = vPosition;  \n"
+		"}                           \n"
+		;
+
+	auto fShaderStr =
+		"precision mediump float;                   \n"
+		"void main()                                \n"
+		"{                                          \n"
+		"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n"
+		"}                                          \n"
+		;
+
+	GlRenderer renderer(vShaderStr, fShaderStr);
 	g_renderer = &renderer;
 
 	LOGD << "CreateWindow";

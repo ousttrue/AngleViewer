@@ -5,9 +5,13 @@ OpenGL ES Viewer using ANGLE
 * Windows10(64bit)
 * VisualStudio2017
 
-## ANGLE by vcpkg
+## Build ANGLE by vcpkg
 
-## CMake
+* https://github.com/Microsoft/vcpkg
+
+`> vcpkg.exe install angle:x64-windows`
+
+## Create VisualStudio project by CMake
 
 `CMAKE_INSTALL_PREFIX = %VCPKG_DIR%/installed/x64-windows`
 

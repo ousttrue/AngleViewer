@@ -4,7 +4,7 @@
 #include <plog/Log.h>
 
 
-GLuint LoadShader(GLenum type, const char *shaderSrc)
+static GLuint LoadShader(GLenum type, const char *shaderSrc)
 {
 	LOGD << "LoadShader";
 
@@ -40,28 +40,16 @@ GLuint LoadShader(GLenum type, const char *shaderSrc)
 }
 
 
+GlRenderer::GlRenderer(const std::string &vs, const std::string &fs)
+	: m_vs(vs), m_fs(fs)
+{
+}
+
 bool GlRenderer::initilize()
 {
-	//UserData *userData = esContext->userData;
-	auto vShaderStr =
-		"attribute vec4 vPosition;   \n"
-		"void main()                 \n"
-		"{                           \n"
-		"  gl_Position = vPosition;  \n"
-		"}                           \n"
-		;
-
-	auto fShaderStr =
-		"precision mediump float;                   \n"
-		"void main()                                \n"
-		"{                                          \n"
-		"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n"
-		"}                                          \n"
-		;
-
 	// Load the vertex/fragment shaders
-	auto vertexShader = LoadShader(GL_VERTEX_SHADER, vShaderStr);
-	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fShaderStr);
+	auto vertexShader = LoadShader(GL_VERTEX_SHADER, m_vs.c_str());
+	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, m_fs.c_str());
 
 	// Create the program object
 	m_programObject = glCreateProgram();
