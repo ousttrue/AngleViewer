@@ -2,12 +2,12 @@
 #include <string>
 
 
+class Shader;
 class GlRenderer
 {
-	int m_initialized = false;
+	std::shared_ptr<Shader> m_shader;
 	int m_width = 0;
 	int m_height = 0;
-	uint8_t m_programObject = 0;
 	std::string m_vs;
 	std::string m_fs;
 
@@ -16,7 +16,4 @@ public:
 	void resize(int w, int h);
 	void update();
 	void draw();
-
-private:
-	bool initilize();
 };

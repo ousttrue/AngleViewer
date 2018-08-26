@@ -1,95 +1,13 @@
 #include "glrenderer.h"
+#include "shader.h"
 #include <GLES2/gl2.h> 
 #include <vector>
 #include <plog/Log.h>
 
 
-static GLuint LoadShader(GLenum type, const char *shaderSrc)
-{
-	LOGD << "LoadShader";
-
-	// Create the shader object
-	auto shader = glCreateShader(type);
-	if (shader == 0) {
-		return 0;
-	}
-
-	// Load the shader source
-	glShaderSource(shader, 1, &shaderSrc, nullptr);
-
-	// Compile the shader
-	glCompileShader(shader);
-
-	// Check the compile status
-	GLint compiled;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-	if (!compiled)
-	{
-		GLint infoLen = 0;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-		if (infoLen > 1)
-		{
-			std::vector<char> infoLog(infoLen);
-			glGetShaderInfoLog(shader, infoLen, NULL, infoLog.data());
-			LOGE << "Error compiling shader: " << infoLog.data();
-		}
-		glDeleteShader(shader);
-		return 0;
-	}
-	return shader;
-}
-
-
 GlRenderer::GlRenderer(const std::string &vs, const std::string &fs)
 	: m_vs(vs), m_fs(fs)
 {
-}
-
-bool GlRenderer::initilize()
-{
-	// Load the vertex/fragment shaders
-	auto vertexShader = LoadShader(GL_VERTEX_SHADER, m_vs.c_str());
-	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, m_fs.c_str());
-
-	// Create the program object
-	m_programObject = glCreateProgram();
-	if (m_programObject == 0) {
-		LOGE << "fail to glCreateProgram";
-		return false;
-	}
-
-	glAttachShader(m_programObject, vertexShader);
-	glAttachShader(m_programObject, fragmentShader);
-
-	// Bind vPosition to attribute 0
-	glBindAttribLocation(m_programObject, 0, "vPosition");
-
-	// Link the program
-	glLinkProgram(m_programObject);
-
-	// Check the link status
-	GLint linked;
-	glGetProgramiv(m_programObject, GL_LINK_STATUS, &linked);
-	if (!linked)
-	{
-		GLint infoLen = 0;
-
-		glGetProgramiv(m_programObject, GL_INFO_LOG_LENGTH, &infoLen);
-
-		if (infoLen > 1)
-		{
-			std::vector<char> infoLog(infoLen);
-
-			glGetProgramInfoLog(m_programObject, infoLen, NULL, infoLog.data());
-			LOGE << "Error linking program: " << infoLog.data();
-		}
-
-		glDeleteProgram(m_programObject);
-		return false;
-	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	return true;
 }
 
 void GlRenderer::resize(int w, int h)
@@ -105,11 +23,14 @@ void GlRenderer::update()
 
 void GlRenderer::draw()
 {
-	if (!m_initialized) {
-		if (!initilize()) {
+	if (!m_shader) {
+		m_shader = Shader::Create(m_vs, m_fs);
+		if (!m_shader) {
 			return;
 		}
-		m_initialized = true;
+
+		// Bind vPosition to attribute 0
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	GLfloat vVertices[] = { 0.0f,  0.5f, 0.0f,
@@ -123,7 +44,7 @@ void GlRenderer::draw()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Use the program object
-	glUseProgram(m_programObject);
+	m_shader->Use();
 
 	// Load the vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
