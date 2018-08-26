@@ -1,13 +1,28 @@
+#include "resource.h"
 #include "eglapp.h"
 #include "glrenderer.h"
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
 #include <assert.h>
+#include <string>
+#include <stdint.h>
 
 
+///
+/// const
+///
+const auto RESOURCE_TYPE = L"SHADERSOURCE";
+
+
+///
+/// globals
+///
 GlRenderer *g_renderer=nullptr;
 
 
+///
+/// static functions
+///
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 {
     switch (msg) {
@@ -62,6 +77,22 @@ static int mainloop(HWND hwnd)
 }
 
 
+static std::vector<uint8_t> GetResource(HINSTANCE hInst, int id, const wchar_t *resource_type)
+{
+	auto hRes = FindResource(hInst, MAKEINTRESOURCE(id), resource_type);
+	auto hMem = LoadResource(hInst, hRes);
+	auto size = SizeofResource(hInst, hRes);
+	auto locked = LockResource(hMem);
+	std::vector<uint8_t> data(size);
+	memcpy(data.data(), locked, size);
+	FreeResource(hMem);
+	return data;
+}
+
+
+///
+/// main
+///
 int WINAPI WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -92,23 +123,12 @@ int WINAPI WinMain(
 
 	RegisterClassEx(&wndclass);
 
-	auto vShaderStr =
-		"attribute vec4 vPosition;   \n"
-		"void main()                 \n"
-		"{                           \n"
-		"  gl_Position = vPosition;  \n"
-		"}                           \n"
-		;
+	auto vs = GetResource(hInstance, ID_VS, RESOURCE_TYPE);
+	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
 
-	auto fShaderStr =
-		"precision mediump float;                   \n"
-		"void main()                                \n"
-		"{                                          \n"
-		"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); \n"
-		"}                                          \n"
-		;
-
-	GlRenderer renderer(vShaderStr, fShaderStr);
+	GlRenderer renderer(
+		std::string(vs.begin(), vs.end()),
+		std::string(fs.begin(), fs.end()));
 	g_renderer = &renderer;
 
 	LOGD << "CreateWindow";

@@ -1,6 +1,9 @@
 FILE(GLOB SRC
 	*.cpp
 	*.h
+    resource.rc
+    shader.vs
+    shader.fs
 	) 
 
 ADD_EXECUTABLE(${PROJECT_NAME} WIN32
