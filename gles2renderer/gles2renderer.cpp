@@ -1,27 +1,27 @@
-#include "glrenderer.h"
+#include "gles2renderer.h"
 #include "shader.h"
 #include <GLES2/gl2.h> 
 #include <vector>
 #include <plog/Log.h>
 
 
-GlRenderer::GlRenderer(const std::string &vs, const std::string &fs)
+GLES2Renderer::GLES2Renderer(const std::string &vs, const std::string &fs)
 	: m_vs(vs), m_fs(fs)
 {
 }
 
-void GlRenderer::resize(int w, int h)
+void GLES2Renderer::resize(int w, int h)
 {
 	LOGD << "resize: " << w << ", " << h;
 	m_width = w;
 	m_height = h;
 }
 
-void GlRenderer::update()
+void GLES2Renderer::update()
 {
 }
 
-void GlRenderer::draw()
+void GLES2Renderer::draw()
 {
 	if (!m_shader) {
 		m_shader = Shader::Create(m_vs, m_fs);

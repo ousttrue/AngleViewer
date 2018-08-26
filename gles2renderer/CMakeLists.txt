@@ -1,4 +1,4 @@
-SET(SUB_NAME glrenderer)
+SET(SUB_NAME gles2renderer)
 
 FILE(GLOB SRC
 	*.cpp

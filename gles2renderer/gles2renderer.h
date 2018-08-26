@@ -3,7 +3,7 @@
 
 
 class Shader;
-class GlRenderer
+class GLES2Renderer
 {
 	std::shared_ptr<Shader> m_shader;
 	int m_width = 0;
@@ -12,7 +12,7 @@ class GlRenderer
 	std::string m_fs;
 
 public:
-	GlRenderer(const std::string &vs, const std::string &fs);
+	GLES2Renderer(const std::string &vs, const std::string &fs);
 	void resize(int w, int h);
 	void update();
 	void draw();

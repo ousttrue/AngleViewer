@@ -1,6 +1,6 @@
 #include "resource.h"
 #include "eglapp.h"
-#include <glrenderer.h>
+#include <gles2renderer.h>
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
 #include <assert.h>
@@ -17,7 +17,7 @@ const auto RESOURCE_TYPE = L"SHADERSOURCE";
 ///
 /// globals
 ///
-GlRenderer *g_renderer=nullptr;
+GLES2Renderer *g_renderer=nullptr;
 
 
 ///
@@ -126,7 +126,7 @@ int WINAPI WinMain(
 	auto vs = GetResource(hInstance, ID_VS, RESOURCE_TYPE);
 	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
 
-	GlRenderer renderer(
+	GLES2Renderer renderer(
 		std::string(vs.begin(), vs.end()),
 		std::string(fs.begin(), fs.end()));
 	g_renderer = &renderer;
