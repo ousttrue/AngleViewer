@@ -1,6 +1,6 @@
 #include "resource.h"
 #include "eglapp.h"
-#include "glrenderer.h"
+#include <glrenderer.h>
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
 #include <assert.h>

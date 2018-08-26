@@ -1,0 +1,20 @@
+SET(SUB_NAME glrenderer)
+
+FILE(GLOB SRC
+	*.cpp
+	*.h
+	) 
+
+ADD_LIBRARY(${SUB_NAME} 
+    ${SRC})
+
+TARGET_COMPILE_DEFINITIONS(${SUB_NAME} PUBLIC
+	UNICODE=1
+	_UNICODE=1
+	)
+
+TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
+    ../plog/include
+	${CMAKE_INSTALL_PREFIX}/include
+	)
+
