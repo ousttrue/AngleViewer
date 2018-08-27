@@ -107,3 +107,14 @@ void Shader::Use()
 {
     glUseProgram(m_program);
 }
+
+uint32_t Shader::GetUniformLocation(const std::string &name)
+{
+	return glGetUniformLocation(m_program, name.c_str());
+}
+
+void Shader::SetUniformValue(uint32_t location, const glm::mat4 &m)
+{
+	if (location < 0)return;
+	glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
+}

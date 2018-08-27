@@ -13,5 +13,7 @@ void Scene::AddTriangle(const std::string &vs, const std::string &fs)
 
 void Scene::Update()
 {
-
+	for (auto node : m_nodes) {
+		node->Update();
+	}
 }

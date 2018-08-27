@@ -36,8 +36,10 @@ void GLES3Renderer::Draw(Scene *pScene)
 			auto node = pScene->GetNode(i);
 			
 			auto shader = GetOrCreateShader(node);
-
 			shader->Use();
+
+			auto loc = shader->GetUniformLocation("RotationMatrix");
+			shader->SetUniformValue(loc, node->GetTransform());
 
 			auto vbo = GetOrCreateVertexArray(node);
 
