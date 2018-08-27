@@ -1,55 +1,71 @@
 #include "gles3renderer.h"
 #include "shader.h"
+#include "vertexbuffer.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl3.h> 
 #include <vector>
 #include <plog/Log.h>
 
 
-GLES3Renderer::GLES3Renderer(const std::string &vs, const std::string &fs)
-	: m_vs(vs), m_fs(fs)
+GLES3Renderer::GLES3Renderer()
 {
 }
 
-void GLES3Renderer::resize(int w, int h)
+void GLES3Renderer::Resize(int w, int h)
 {
 	LOGD << "resize: " << w << ", " << h;
 	m_width = w;
 	m_height = h;
 }
 
-void GLES3Renderer::update()
+void GLES3Renderer::Draw(Scene *pScene)
 {
-}
-
-void GLES3Renderer::draw()
-{
-	if (!m_shader) {
-		m_shader = Shader::Create(m_vs, m_fs);
-		if (!m_shader) {
-			return;
-		}
-
-		// Bind vPosition to attribute 0
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	}
-
-	GLfloat vVertices[] = { 0.0f,  0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f,  0.0f };
-
-	// Set the viewport
+	//
+	// rendertarget
+	//
 	glViewport(0, 0, m_width, m_height);
-
-	// Clear the color buffer
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Use the program object
-	m_shader->Use();
+	//
+	// Draw
+	//
+	if (pScene) {
+		auto count = pScene->GetNodeCount();
+		for (int i = 0; i < count; ++i) {
+			auto node = pScene->GetNode(i);
+			
+			auto shader = GetOrCreateShader(node);
 
-	// Load the vertex data
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-	glEnableVertexAttribArray(0);
+			shader->Use();
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+			auto vbo = GetOrCreateVertexArray(node);
+
+			vbo->Draw();
+		}
+	}
+}
+
+std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
+{
+	auto found = m_shader_map.find(pNode->GetID());
+	if (found != m_shader_map.end()) {
+		return found->second;
+	}
+
+	auto shader = Shader::Create(pNode->GetVertexShader(), pNode->GetFragmentShader());
+	m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
+	return shader;
+}
+
+std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const Node *pNode)
+{
+	auto found = m_vertexbuffer_map.find(pNode->GetID());
+	if (found != m_vertexbuffer_map.end()) {
+		return found->second;
+	}
+
+	auto vbo = VertexArray::Create(pNode->GetVertices());
+	m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vbo));
+	return vbo;
 }

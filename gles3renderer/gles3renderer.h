@@ -1,19 +1,26 @@
 #include <stdint.h>
 #include <string>
+#include <memory>
+#include <scene.h>
+#include <unordered_map>
 
 
 class Shader;
+class VertexArray;
 class GLES3Renderer
 {
-	std::shared_ptr<Shader> m_shader;
 	int m_width = 0;
 	int m_height = 0;
-	std::string m_vs;
-	std::string m_fs;
+
+	std::unordered_map<uint32_t, std::shared_ptr<Shader>> m_shader_map;
+	std::unordered_map<uint32_t, std::shared_ptr<VertexArray>> m_vertexbuffer_map;
 
 public:
-	GLES3Renderer(const std::string &vs, const std::string &fs);
-	void resize(int w, int h);
-	void update();
-	void draw();
+	GLES3Renderer();
+	void Resize(int w, int h);
+	void Draw(Scene *pScene);
+
+private:
+	std::shared_ptr<Shader> GetOrCreateShader(const Node *pNode);
+	std::shared_ptr<VertexArray> GetOrCreateVertexArray(const Node *pNode);
 };

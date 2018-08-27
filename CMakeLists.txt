@@ -1,4 +1,4 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
 PROJECT(AngleViewer VERSION 0.1.0)
-SUBDIRS(gles3renderer src)
+SUBDIRS(scene gles3renderer src)
 

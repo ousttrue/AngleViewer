@@ -1,4 +1,4 @@
-SET(SUB_NAME gles3renderer)
+SET(SUB_NAME scene)
 
 FILE(GLOB SRC
 	*.cpp
@@ -14,9 +14,6 @@ TARGET_COMPILE_DEFINITIONS(${SUB_NAME} PUBLIC
 	)
 
 TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
-    ../scene
-    ../plog/include
     ../glm
-	${CMAKE_INSTALL_PREFIX}/include
 	)
 

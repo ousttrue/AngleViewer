@@ -1,6 +1,8 @@
 #include "resource.h"
 #include "eglapp.h"
 #include <gles3renderer.h>
+#include <scene.h>
+
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
 #include <assert.h>
@@ -18,6 +20,7 @@ const auto RESOURCE_TYPE = L"SHADERSOURCE";
 /// globals
 ///
 GLES3Renderer *g_renderer=nullptr;
+Scene *g_scene = nullptr;
 
 
 ///
@@ -34,7 +37,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			return 0;
 
 		case WM_SIZE:
-			g_renderer->resize(LOWORD(lParam), HIWORD(lParam));
+			g_renderer->Resize(LOWORD(lParam), HIWORD(lParam));
 			return 0;
 
 		case WM_PAINT:
@@ -67,8 +70,8 @@ static int mainloop(HWND hwnd)
 		}
 
 		// rendering
-		g_renderer->update();
-		g_renderer->draw();
+		g_scene->Update();
+		g_renderer->Draw(g_scene);
 		app.present();
 	}
 
@@ -126,9 +129,13 @@ int WINAPI WinMain(
 	auto vs = GetResource(hInstance, ID_VS, RESOURCE_TYPE);
 	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
 
-	GLES3Renderer renderer(
+	Scene scene;
+	scene.AddTriangle(
 		std::string(vs.begin(), vs.end()),
 		std::string(fs.begin(), fs.end()));
+	g_scene = &scene;
+
+	GLES3Renderer renderer;
 	g_renderer = &renderer;
 
 	LOGD << "CreateWindow";
