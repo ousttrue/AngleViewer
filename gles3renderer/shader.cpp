@@ -86,18 +86,37 @@ std::shared_ptr<Shader> Shader::Create(const std::string &vs, const std::string 
 		return nullptr;
 	}
 
-	// stats
-	GLint nAttribs;
-	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &nAttribs);
-	GLint maxLength;
-	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-	std::vector<GLchar> name(maxLength);
-	for (int i = 0; i < nAttribs; ++i) {
-		GLint written, size;
-		GLenum type;
-		glGetActiveAttrib(program, i, maxLength, &written, &size, &type, name.data());
-		auto location = glGetAttribLocation(program, name.data());
-		LOGD << location << ": " << std::string(name.data());
+	// attributes
+	{
+		GLint nAttribs;
+		glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+		GLint maxLength;
+		glGetProgramiv(program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+		std::vector<GLchar> name(maxLength);
+		for (int i = 0; i < nAttribs; ++i) {
+			GLint written, size;
+			GLenum type;
+			glGetActiveAttrib(program, i, maxLength, &written, &size, &type, name.data());
+			auto location = glGetAttribLocation(program, name.data());
+			LOGD << "attrib: " << location << ": " << std::string(name.data());
+		}
+	}
+
+	// uniforms
+	{
+		GLint nUniforms;
+		glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &nUniforms);
+		GLint maxLength;
+		glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+		std::vector<GLchar> name(maxLength);
+		for (int i = 0; i < nUniforms; ++i)
+		{
+			GLint written, size;
+			GLenum type;
+			glGetActiveUniform(program, i, maxLength, &written, &size, &type, name.data());
+			auto location = glGetUniformLocation(program, name.data());
+			LOGD << "uniform: " << location << ": " << std::string(name.data());
+		}
 	}
 
 	return std::make_shared<Shader>(program);
