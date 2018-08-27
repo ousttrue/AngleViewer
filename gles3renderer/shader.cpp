@@ -45,48 +45,62 @@ Shader::Shader(GLuint program) :m_program(program) {
 
 std::shared_ptr<Shader> Shader::Create(const std::string &vs, const std::string &fs)
 {
-    auto vertexShader = LoadShader(GL_VERTEX_SHADER, vs.c_str());
-    if (!vertexShader) {
-        return  nullptr;
-    }
-    auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fs.c_str());
-    if (!fragmentShader) {
-        return nullptr;
-    }
+	auto vertexShader = LoadShader(GL_VERTEX_SHADER, vs.c_str());
+	if (!vertexShader) {
+		return  nullptr;
+	}
+	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fs.c_str());
+	if (!fragmentShader) {
+		return nullptr;
+	}
 
-    // Create the program object
-    auto program = glCreateProgram();
-    if (!program) {
-        LOGE << "fail to glCreateProgram";
-        return nullptr;
-    }
+	// Create the program object
+	auto program = glCreateProgram();
+	if (!program) {
+		LOGE << "fail to glCreateProgram";
+		return nullptr;
+	}
 
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, fragmentShader);
 
-    glBindAttribLocation(program, 0, "vPosition");
+	glBindAttribLocation(program, 0, "vPosition");
 
-    // Link the program
-    glLinkProgram(program);
-    // Check the link status
-    GLint linked;
-    glGetProgramiv(program, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        GLint infoLen = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
-        if (infoLen > 1)
-        {
-            std::vector<char> infoLog(infoLen);
-            glGetProgramInfoLog(program, infoLen, NULL, infoLog.data());
-            LOGE << "Error linking program: " << infoLog.data();
-        }
+	// Link the program
+	glLinkProgram(program);
+	// Check the link status
+	GLint linked;
+	glGetProgramiv(program, GL_LINK_STATUS, &linked);
+	if (!linked)
+	{
+		GLint infoLen = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
+		if (infoLen > 1)
+		{
+			std::vector<char> infoLog(infoLen);
+			glGetProgramInfoLog(program, infoLen, NULL, infoLog.data());
+			LOGE << "Error linking program: " << infoLog.data();
+		}
 
-        glDeleteProgram(program);
-        return nullptr;
-    }
+		glDeleteProgram(program);
+		return nullptr;
+	}
 
-    return std::make_shared<Shader>(program);
+	// stats
+	GLint nAttribs;
+	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+	GLint maxLength;
+	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+	std::vector<GLchar> name(maxLength);
+	for (int i = 0; i < nAttribs; ++i) {
+		GLint written, size;
+		GLenum type;
+		glGetActiveAttrib(program, i, maxLength, &written, &size, &type, name.data());
+		auto location = glGetAttribLocation(program, name.data());
+		LOGD << location << ": " << std::string(name.data());
+	}
+
+	return std::make_shared<Shader>(program);
 }
 
 void Shader::Use()
