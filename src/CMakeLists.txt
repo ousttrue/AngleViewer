@@ -16,6 +16,7 @@ TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC
 
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
     ../scene
+    ../gui
     ../gles3renderer
     ../plog/include
 	${CMAKE_INSTALL_PREFIX}/include
@@ -23,6 +24,7 @@ TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
     scene
+    gui
     gles3renderer
 	debug 
 	${CMAKE_INSTALL_PREFIX}/debug/lib/libegl.lib

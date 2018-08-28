@@ -2,6 +2,7 @@
 #include "eglapp.h"
 #include <gles3renderer.h>
 #include <scene.h>
+#include <gui.h>
 
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
@@ -21,33 +22,36 @@ const auto RESOURCE_TYPE = L"SHADERSOURCE";
 ///
 GLES3Renderer *g_renderer=nullptr;
 Scene *g_scene = nullptr;
-
+int g_w = 0;
+int g_h = 0;
 
 ///
 /// static functions
 ///
-static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
+static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
+	switch (msg) {
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
 
-		case WM_ERASEBKGND:
-			return 0;
+	case WM_ERASEBKGND:
+		return 0;
 
-		case WM_SIZE:
-			g_renderer->Resize(LOWORD(lParam), HIWORD(lParam));
-			return 0;
+	case WM_SIZE:
+		g_w = LOWORD(lParam);
+		g_h = HIWORD(lParam);
+		g_renderer->Resize(g_w, g_h);
+		return 0;
 
-		case WM_PAINT:
-			{
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hwnd, &ps);
-				EndPaint(hwnd, &ps);
-			}
-    }
-    return DefWindowProc(hwnd, msg, wParam, lParam);
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+		EndPaint(hwnd, &ps);
+	}
+	}
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 
@@ -55,6 +59,8 @@ static int mainloop(HWND hwnd)
 {
 	EglApp app(hwnd);
 	LOGD << "egl initialized";
+
+	GUI gui;
 
 	while (true)
 	{
@@ -72,6 +78,7 @@ static int mainloop(HWND hwnd)
 		// rendering
 		g_scene->Update();
 		g_renderer->Draw(g_scene);
+		gui.Render(g_scene, g_w, g_h);
 		app.present();
 	}
 
