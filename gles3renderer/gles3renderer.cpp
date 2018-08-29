@@ -36,14 +36,16 @@ void GLES3Renderer::Draw(Scene *pScene)
 			auto node = pScene->GetNode(i);
 			
 			auto shader = GetOrCreateShader(node);
-			shader->Use();
+			if (shader) {
+				shader->Use();
 
-			auto loc = shader->GetUniformLocation("RotationMatrix");
-			shader->SetUniformValue(loc, node->GetTransform());
+				auto loc = shader->GetUniformLocation("RotationMatrix");
+				shader->SetUniformValue(loc, node->GetTransform());
 
-			auto vbo = GetOrCreateVertexArray(node);
+				auto vbo = GetOrCreateVertexArray(node);
 
-			vbo->Draw();
+				vbo->Draw();
+			}
 		}
 	}
 }
@@ -55,7 +57,10 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
 		return found->second;
 	}
 
-	auto shader = Shader::Create(pNode->GetVertexShader(), pNode->GetFragmentShader());
+	auto mesh = pNode->GetMesh();
+	if (!mesh)return nullptr;
+
+	auto shader = Shader::Create(mesh->GetVertexShader(), mesh->GetFragmentShader());
 	m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
 	return shader;
 }
@@ -67,7 +72,10 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const Node *p
 		return found->second;
 	}
 
-	auto vbo = VertexArray::Create(pNode->GetVertices());
+	auto mesh = pNode->GetMesh();
+	if (!mesh)return nullptr;
+	
+	auto vbo = VertexArray::Create(mesh->GetVertices());
 	m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vbo));
 	return vbo;
 }

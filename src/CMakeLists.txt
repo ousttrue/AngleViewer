@@ -23,6 +23,7 @@ TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	)
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+    winmm
     scene
     gui
     gles3renderer

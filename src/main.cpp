@@ -1,5 +1,7 @@
+#include <Windows.h>
 #include "resource.h"
 #include "eglapp.h"
+
 #include <gles3renderer.h>
 #include <scene.h>
 #include <gui.h>
@@ -76,7 +78,7 @@ static int mainloop(HWND hwnd)
 		}
 
 		// rendering
-		g_scene->Update();
+		g_scene->Update(timeGetTime());
 		g_renderer->Draw(g_scene);
 		gui.Render(g_scene, g_w, g_h);
 		app.present();
