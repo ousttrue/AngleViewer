@@ -59,7 +59,7 @@ void VertexArray::Bind()
 void VertexArray::AddAttribute(const std::shared_ptr<VertexBuffer> &vbo)
 {
 	Bind();
-	auto attribute = m_attributes.size();
+	auto attribute = static_cast<GLuint>(m_attributes.size());
 	m_attributes.push_back(vbo);
 
 	glEnableVertexAttribArray(attribute);
