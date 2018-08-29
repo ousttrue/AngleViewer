@@ -18,6 +18,10 @@ void Scene::AddTriangle(const std::string &vs, const std::string &fs)
 		0.5f, -0.5f,  0.0f };
 	auto node = Node::Create();
 	node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, vertices)));
+
+	node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
+
+	m_nodes.push_back(node);
 }
 
 void Scene::Update(uint32_t now)
