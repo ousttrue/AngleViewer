@@ -45,7 +45,7 @@ void GLES3Renderer::Draw(Scene *pScene)
 				shader->Use();
 
 				auto projection = camera->GetCamera()->GetMatrix();
-				auto view = camera->GetTransform();
+				auto view = camera->GetInverse();
 				auto model = node->GetTransform();
 			
 				shader->SetUniformValue("ProjectionMatrix", projection);

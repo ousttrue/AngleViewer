@@ -8,7 +8,7 @@ Scene::Scene()
 	auto node = Node::Create();
 	auto camera = std::make_shared<PersepectiveCamera>();
 	node->SetCamera(camera);
-	node->SetPosition(0, 0, -2.0f);
+	node->SetPosition(0, 0, 2.0f);
 	m_cameraNode = node;
 	//m_nodes.push_back(node);
 }

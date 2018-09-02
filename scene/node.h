@@ -26,15 +26,13 @@ public:
 	uint32_t GetID()const { return m_unique_id; }
 
 private:
-	//glm::mat4 m_transform = glm::identity<glm::mat4>();
 	glm::vec3 m_position = glm::zero<glm::vec3>();
 	glm::vec3 m_axis;
 	float m_angleDegree = 0;
-	glm::vec3 m_scale = glm::one<glm::vec3>();
 
 public:
 	glm::mat4 GetTransform()const;
-    //void SetTransform(const glm::mat4 &transform){ m_transform=transform; }
+	glm::mat4 GetInverse()const;
 	void SetPosition(float x, float y, float z) { m_position = glm::vec3(x, y, z); }
 	void SetRotatin(const glm::vec3 &axis, float angleDegree) {
 		m_angleDegree = angleDegree;

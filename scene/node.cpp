@@ -8,7 +8,13 @@ glm::mat4 Node::GetTransform()const
 {
 	return glm::translate(m_position) 
 		* glm::rotate(m_angleDegree, m_axis)
-		* glm::scale(m_scale)
+		;
+}
+
+glm::mat4 Node::GetInverse()const
+{
+	return glm::rotate(-m_angleDegree, m_axis)
+		* glm::translate(-m_position)
 		;
 }
 
