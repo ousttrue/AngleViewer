@@ -6,6 +6,7 @@ uniform mat4 ProjectionMatrix;
 uniform mat4 MVPMatrix;
 void main()                 
 {                           
-    //gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition, 1);  
-    gl_Position = MVPMatrix * vec4(vPosition, 1);
+    //gl_Position = ModelMatrix * vec4(vPosition, 1);  
+    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition, 1);  
+    //gl_Position = MVPMatrix * vec4(vPosition, 1);
 }                           

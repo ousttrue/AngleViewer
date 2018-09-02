@@ -25,19 +25,11 @@ public:
 	}
 	uint32_t GetID()const { return m_unique_id; }
 
-private:
-	glm::vec3 m_position = glm::zero<glm::vec3>();
-	glm::vec3 m_axis;
-	float m_angleDegree = 0;
-
 public:
+	glm::vec3 position = glm::zero<glm::vec3>();
+	glm::vec3 euler = glm::zero<glm::vec3>();
 	glm::mat4 GetTransform()const;
 	glm::mat4 GetInverse()const;
-	void SetPosition(float x, float y, float z) { m_position = glm::vec3(x, y, z); }
-	void SetRotatin(const glm::vec3 &axis, float angleDegree) {
-		m_angleDegree = angleDegree;
-		m_axis = axis;
-	}
 	void ForwardWheel(int d);
 
 private:
