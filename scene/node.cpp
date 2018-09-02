@@ -1,28 +1,23 @@
 #include "node.h"
 #include <plog/Log.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
 
 
-void Node::SetPosition(float x, float y, float z)
+glm::mat4 Node::GetTransform()const
 {
-	m_transform[3] = glm::vec4(x, y, z, 0);
-}
-
-void Node::Forward(float d)
-{
-	auto position = m_transform[3];
-	position.z += d;
-	m_transform[3] = position;
+	return glm::translate(m_position) 
+		* glm::rotate(m_angleDegree, m_axis)
+		* glm::scale(m_scale)
+		;
 }
 
 void Node::ForwardWheel(int d)
 {
-	auto position = m_transform[3];
 	if (d < 0) {
-		position.z *= 1.1f;
+		m_position.z *= 1.1f;
 	}
 	else if (d > 0) {
-		position.z *= 0.9f;
+		m_position.z *= 0.9f;
 	}
-	LOGD << position.z;
-	m_transform[3] = position;
 }
