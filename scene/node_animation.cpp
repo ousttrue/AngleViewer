@@ -5,5 +5,5 @@
 void NodeRotation::Update(Node *pNode, const AnimationTime &time)
 {
     m_angle += m_angularVelocityRadians * time.DeltaSeconds;
-	pNode->euler.z = m_angle;
+	pNode->eulerRadians.z = m_angle;
 }

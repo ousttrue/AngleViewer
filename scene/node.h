@@ -27,7 +27,7 @@ public:
 
 public:
 	glm::vec3 position = glm::zero<glm::vec3>();
-	glm::vec3 euler = glm::zero<glm::vec3>();
+	glm::vec3 eulerRadians = glm::zero<glm::vec3>();
 	glm::mat4 GetTransform()const;
 	glm::mat4 GetInverse()const;
 	void ForwardWheel(int d);

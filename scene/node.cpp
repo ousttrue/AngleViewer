@@ -7,13 +7,13 @@
 glm::mat4 Node::GetTransform()const
 {
 	return glm::translate(glm::mat4(1), position)
-		* glm::eulerAngleYXZ(euler.y, euler.x, euler.z)
+		* glm::eulerAngleYXZ(eulerRadians.y, eulerRadians.x, eulerRadians.z)
 		;
 }
 
 glm::mat4 Node::GetInverse()const
 {
-	return glm::transpose(glm::eulerAngleYXZ(euler.y, euler.x, euler.z))
+	return glm::transpose(glm::eulerAngleYXZ(eulerRadians.y, eulerRadians.x, eulerRadians.z))
 		* glm::translate(glm::mat4(1), -position)
 		;
 }

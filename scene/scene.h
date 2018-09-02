@@ -11,6 +11,12 @@ class Scene
 	std::vector<std::shared_ptr<Node>> m_nodes;
 	uint32_t m_time = 0;
 
+	bool m_mouseLeftIsDown = false;
+	bool m_mouseMiddleIsDown = false;
+	bool m_mouseRightIsDown = false;
+	int m_mouseLastX = 0;
+	int m_mouseLastY = 0;
+
 public:
 	Scene();
 

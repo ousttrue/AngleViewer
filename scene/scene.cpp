@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "camera.h"
 #include <Windows.h>
+#include <plog/Log.h>
 
 
 Scene::Scene()
@@ -40,39 +41,55 @@ void Scene::Update(uint32_t now)
 	}
 }
 
+const float RORATION_SPEED = 0.1f;
+
 void Scene::MouseMove(int x, int y)
 {
+	auto dx = x - m_mouseLastX;
+	auto dy = y - m_mouseLastY;
+	m_mouseLastX = x;
+	m_mouseLastY = y;
 
+	if (m_mouseLeftIsDown) {
+
+	}
+	if (m_mouseMiddleIsDown) {
+
+	}
+	if (m_mouseRightIsDown) {
+		m_cameraNode->eulerRadians.y += glm::radians((float)dx * RORATION_SPEED);
+		m_cameraNode->eulerRadians.x += glm::radians((float)dy * RORATION_SPEED);
+	}
 }
 
 void Scene::MouseLeftDown()
 {
-
+	m_mouseLeftIsDown = true;
 }
 
 void Scene::MouseLeftUp()
 {
-
+	m_mouseLeftIsDown = false;
 }
 
 void Scene::MouseMiddleDown()
 {
-
+	m_mouseMiddleIsDown = true;
 }
 
 void Scene::MouseMiddleUp()
 {
-
+	m_mouseMiddleIsDown = false;
 }
 
 void Scene::MouseRightDown()
 {
-
+	m_mouseRightIsDown = true;
 }
 
 void Scene::MouseRightUp()
 {
-
+	m_mouseRightIsDown = false;
 }
 
 void Scene::MouseWheel(int d)
