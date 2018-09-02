@@ -22,4 +22,13 @@ public:
 		if (index < 0 || index >= m_nodes.size())return nullptr;
 		return &*m_nodes[index];
 	}
+
+	void MouseMove(int x, int y);
+	void MouseLeftDown();
+	void MouseLeftUp();
+	void MouseMiddleDown();
+	void MouseMiddleUp();
+	void MouseRightDown();
+	void MouseRightUp();
+	void MouseWheel(int d);
 };

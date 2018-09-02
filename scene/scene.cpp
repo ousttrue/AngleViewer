@@ -37,3 +37,43 @@ void Scene::Update(uint32_t now)
 		node->Update(time);
 	}
 }
+
+void Scene::MouseMove(int x, int y)
+{
+
+}
+
+void Scene::MouseLeftDown()
+{
+
+}
+
+void Scene::MouseLeftUp()
+{
+
+}
+
+void Scene::MouseMiddleDown()
+{
+
+}
+
+void Scene::MouseMiddleUp()
+{
+
+}
+
+void Scene::MouseRightDown()
+{
+
+}
+
+void Scene::MouseRightUp()
+{
+
+}
+
+void Scene::MouseWheel(int d)
+{
+
+}
