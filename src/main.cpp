@@ -181,6 +181,7 @@ static int mainloop(HWND hwnd)
 		// rendering
 		g_scene->Update(timeGetTime());
 		g_renderer->Draw(g_scene);
+
 		gui.Render(g_scene, g_w, g_h);
 		app.present();
 	}

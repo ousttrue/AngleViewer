@@ -29,6 +29,6 @@ public:
 
     glm::mat4 GetMatrix()const override
     {
-        return  glm::perspective(m_fovyDegree, m_aspect, m_near, m_far);
+        return  glm::perspective(glm::radians(m_fovyDegree), m_aspect, m_near, m_far);
     }
 };

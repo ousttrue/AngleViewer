@@ -8,7 +8,9 @@ Scene::Scene()
 	auto node = Node::Create();
 	auto camera = std::make_shared<PersepectiveCamera>();
 	node->SetCamera(camera);
-	m_nodes.push_back(node);
+	node->SetPosition(0, 0, -2.0f);
+	m_cameraNode = node;
+	//m_nodes.push_back(node);
 }
 
 void Scene::AddTriangle(const std::string &vs, const std::string &fs)
@@ -75,5 +77,5 @@ void Scene::MouseRightUp()
 
 void Scene::MouseWheel(int d)
 {
-
+	m_cameraNode->ForwardWheel(d);
 }

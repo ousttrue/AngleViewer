@@ -29,6 +29,9 @@ private:
 public:
 	glm::mat4 GetTransform()const { return m_transform; }
     void SetTransform(const glm::mat4 &transform){ m_transform=transform; }
+	void SetPosition(float x, float y, float z);
+	void Forward(float d);
+	void ForwardWheel(int d);
 
 private:
 	std::shared_ptr<ICamera> m_camera;

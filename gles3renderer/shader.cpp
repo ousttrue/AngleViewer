@@ -137,3 +137,9 @@ void Shader::SetUniformValue(uint32_t location, const glm::mat4 &m)
 	if (location < 0)return;
 	glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
 }
+
+void Shader::SetUniformValue(const std::string &name, const glm::mat4 &m)
+{
+	auto location = GetUniformLocation(name);
+	SetUniformValue(location, m);
+}

@@ -7,6 +7,7 @@
 
 class Scene
 {
+	std::shared_ptr<Node> m_cameraNode;
 	std::vector<std::shared_ptr<Node>> m_nodes;
 	uint32_t m_time = 0;
 
@@ -17,6 +18,13 @@ public:
 	void Update(uint32_t now);
 
 	int GetNodeCount()const { return static_cast<int>(m_nodes.size()); }
+
+	const Node* GetCameraNode()const
+	{
+		if (!m_cameraNode)return nullptr;
+		return &*m_cameraNode;
+	}
+
 	const Node* GetNode(int index)const
 	{
 		if (index < 0 || index >= m_nodes.size())return nullptr;

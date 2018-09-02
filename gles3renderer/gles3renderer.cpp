@@ -28,6 +28,11 @@ void GLES3Renderer::Draw(Scene *pScene)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	//
+	// setup camera
+	//
+	auto camera = pScene->GetCameraNode();
+
+	//
 	// Draw
 	//
 	if (pScene) {
@@ -39,8 +44,16 @@ void GLES3Renderer::Draw(Scene *pScene)
 			if (shader) {
 				shader->Use();
 
-				auto loc = shader->GetUniformLocation("RotationMatrix");
-				shader->SetUniformValue(loc, node->GetTransform());
+				auto projection = camera->GetCamera()->GetMatrix();
+				auto view = camera->GetTransform();
+				auto model = node->GetTransform();
+			
+				shader->SetUniformValue("ProjectionMatrix", projection);
+				shader->SetUniformValue("ViewMatrix", view);
+				shader->SetUniformValue("ModelMatrix", model);
+
+				glm::mat4 mvp = projection * view * model;
+				shader->SetUniformValue("MVPMatrix", mvp);
 
 				auto vbo = GetOrCreateVertexArray(node);
 
@@ -61,7 +74,9 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
 	if (!mesh)return nullptr;
 
 	auto shader = Shader::Create(mesh->GetVertexShader(), mesh->GetFragmentShader());
-	m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
+	if (shader) {
+		m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
+	}
 	return shader;
 }
 

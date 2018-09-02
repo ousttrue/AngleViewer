@@ -1,7 +1,12 @@
 #version 300 es
-in vec4 vPosition;   
-uniform mat4 RotationMatrix;
+in vec3 vPosition;   
+uniform mat4 ModelMatrix;
+uniform mat4 ViewMatrix;
+uniform mat4 ProjectionMatrix;
+uniform mat4 MVPMatrix;
 void main()                 
 {                           
-    gl_Position = RotationMatrix * vPosition;  
+    //gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition, 1);  
+    //gl_Position = MVPMatrix * vec4(vPosition, 1);
+    gl_Position = vec4(vPosition, 1) * MVPMatrix;
 }                           
