@@ -1,17 +1,13 @@
 #include "scene.h"
-#include "camera.h"
 #include <Windows.h>
 #include <plog/Log.h>
 
 
 Scene::Scene()
 {
-	auto node = Node::Create();
-	auto camera = std::make_shared<PersepectiveCamera>();
-	node->SetCamera(camera);
-	node->position = glm::vec3(0, 0, 2.0f);
-	m_cameraNode = node;
-	//m_nodes.push_back(node);
+	m_camera = std::make_shared<PersepectiveCamera>();
+	m_cameraNode = Node::Create();
+	m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
 }
 
 void Scene::Setup(const std::string &vs, const std::string &fs)
@@ -59,7 +55,6 @@ void Scene::Setup(const std::string &vs, const std::string &fs)
 
 		auto node = Node::Create();
 		node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, Mesh::Lines, vertices, colors)));
-		node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
 		m_nodes.push_back(node);
 	}
 
@@ -97,58 +92,7 @@ void Scene::Update(uint32_t now)
 	}
 }
 
-const float RORATION_SPEED = 0.1f;
-
-void Scene::MouseMove(int x, int y)
+void Scene::SetScreenSize(int w, int h)
 {
-	auto dx = x - m_mouseLastX;
-	auto dy = y - m_mouseLastY;
-	m_mouseLastX = x;
-	m_mouseLastY = y;
-
-	if (m_mouseLeftIsDown) {
-
-	}
-	if (m_mouseMiddleIsDown) {
-
-	}
-	if (m_mouseRightIsDown) {
-		m_cameraNode->eulerRadians.y += glm::radians((float)dx * RORATION_SPEED);
-		m_cameraNode->eulerRadians.x += glm::radians((float)dy * RORATION_SPEED);
-	}
-}
-
-void Scene::MouseLeftDown()
-{
-	m_mouseLeftIsDown = true;
-}
-
-void Scene::MouseLeftUp()
-{
-	m_mouseLeftIsDown = false;
-}
-
-void Scene::MouseMiddleDown()
-{
-	m_mouseMiddleIsDown = true;
-}
-
-void Scene::MouseMiddleUp()
-{
-	m_mouseMiddleIsDown = false;
-}
-
-void Scene::MouseRightDown()
-{
-	m_mouseRightIsDown = true;
-}
-
-void Scene::MouseRightUp()
-{
-	m_mouseRightIsDown = false;
-}
-
-void Scene::MouseWheel(int d)
-{
-	m_cameraNode->ForwardWheel(d);
+	m_camera->SetScreenSize(w, h);
 }

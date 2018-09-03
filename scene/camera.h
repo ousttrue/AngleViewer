@@ -7,6 +7,7 @@ class ICamera
 {
 public:
     virtual glm::mat4 GetMatrix()const=0;
+	virtual void SetScreenSize(int w, int h) = 0;
 };
 
 

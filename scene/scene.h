@@ -1,5 +1,6 @@
 #pragma once
 #include "camera.h"
+#include "mouse.h"
 #include "mesh.h"
 #include "node_animation.h"
 #include "node.h"
@@ -7,15 +8,14 @@
 
 class Scene
 {
+	std::shared_ptr<ICamera> m_camera;
 	std::shared_ptr<Node> m_cameraNode;
-	std::vector<std::shared_ptr<Node>> m_nodes;
-	uint32_t m_time = 0;
 
-	bool m_mouseLeftIsDown = false;
-	bool m_mouseMiddleIsDown = false;
-	bool m_mouseRightIsDown = false;
-	int m_mouseLastX = 0;
-	int m_mouseLastY = 0;
+	std::vector<std::shared_ptr<Node>> m_nodes;
+
+	std::shared_ptr<IMouseObserver> m_mouseObserver;
+
+	uint32_t m_time = 0;
 
 public:
 	Scene();
@@ -24,6 +24,12 @@ public:
 	void Update(uint32_t now);
 
 	int GetNodeCount()const { return static_cast<int>(m_nodes.size()); }
+
+	const ICamera* GetCamera()const
+	{
+		if (!m_camera)return nullptr;
+		return &*m_camera;
+	}
 
 	const Node* GetCameraNode()const
 	{
@@ -37,12 +43,11 @@ public:
 		return &*m_nodes[index];
 	}
 
-	void MouseMove(int x, int y);
-	void MouseLeftDown();
-	void MouseLeftUp();
-	void MouseMiddleDown();
-	void MouseMiddleUp();
-	void MouseRightDown();
-	void MouseRightUp();
-	void MouseWheel(int d);
+	IMouseObserver* GetMouseObserver()
+	{
+		if (!m_mouseObserver)return nullptr;
+		return &*m_mouseObserver;
+	}
+
+	void SetScreenSize(int w, int h);
 };

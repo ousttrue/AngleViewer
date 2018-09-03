@@ -86,6 +86,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		g_w = LOWORD(lParam);
 		g_h = HIWORD(lParam);
+		g_scene->SetScreenSize(g_w, g_h);
 		g_renderer->Resize(g_w, g_h);
 		return 0;
 	}
@@ -100,55 +101,55 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 	case WM_MOUSEMOVE:
 	{
-		g_scene->MouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		g_scene->GetMouseObserver()->MouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	}
 
 	case WM_LBUTTONDOWN:
 	{
 		m_capture.Down(MouseCapture::LEFT, hwnd);
-		g_scene->MouseLeftDown();
+		g_scene->GetMouseObserver()->MouseLeftDown();
 		return 0;
 	}
 
 	case WM_LBUTTONUP:
 	{
 		m_capture.Up(MouseCapture::LEFT);
-		g_scene->MouseLeftUp();
+		g_scene->GetMouseObserver()->MouseLeftUp();
 		return 0;
 	}
 
 	case WM_MBUTTONDOWN:
 	{
 		m_capture.Down(MouseCapture::MIDDLE, hwnd);
-		g_scene->MouseMiddleDown();
+		g_scene->GetMouseObserver()->MouseMiddleDown();
 		return 0;
 	}
 
 	case WM_MBUTTONUP:
 	{
 		m_capture.Up(MouseCapture::MIDDLE);
-		g_scene->MouseMiddleUp();
+		g_scene->GetMouseObserver()->MouseMiddleUp();
 		return 0;
 	}
 
 	case WM_RBUTTONDOWN:
 	{
 		m_capture.Down(MouseCapture::RIGHT, hwnd);
-		g_scene->MouseRightDown();
+		g_scene->GetMouseObserver()->MouseRightDown();
 		return 0;
 	}
 
 	case WM_RBUTTONUP:
 	{
 		m_capture.Up(MouseCapture::RIGHT);
-		g_scene->MouseRightUp();
+		g_scene->GetMouseObserver()->MouseRightUp();
 		return 0;
 	}
 
 	case WM_MOUSEWHEEL:
 	{
-		g_scene->MouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
+		g_scene->GetMouseObserver()->MouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
 		return 0;
 	}
 

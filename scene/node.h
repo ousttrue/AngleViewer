@@ -26,17 +26,7 @@ public:
 	uint32_t GetID()const { return m_unique_id; }
 
 public:
-	glm::vec3 position = glm::zero<glm::vec3>();
-	glm::vec3 eulerRadians = glm::zero<glm::vec3>();
-	glm::mat4 GetTransform()const;
-	glm::mat4 GetInverse()const;
-	void ForwardWheel(int d);
-
-private:
-	std::shared_ptr<ICamera> m_camera;
-public:
-    std::shared_ptr<ICamera> GetCamera()const{ return m_camera; }
-    void SetCamera(const std::shared_ptr<ICamera> &camera){ m_camera=camera; }
+	glm::mat4 transform = glm::identity<glm::mat4>();
 
 private:
 	std::shared_ptr<Mesh> m_mesh;
@@ -55,4 +45,3 @@ public:
 		}
 	}
 };
-

@@ -30,7 +30,8 @@ void GLES3Renderer::Draw(Scene *pScene)
 	//
 	// setup camera
 	//
-	auto camera = pScene->GetCameraNode();
+	auto camera = pScene->GetCamera();
+	auto cameraNode = pScene->GetCameraNode();
 
 	//
 	// Draw
@@ -44,9 +45,9 @@ void GLES3Renderer::Draw(Scene *pScene)
 			if (shader) {
 				shader->Use();
 
-				auto projection = camera->GetCamera()->GetMatrix();
-				auto view = camera->GetInverse();
-				auto model = node->GetTransform();
+				auto projection = camera->GetMatrix();
+				auto view = cameraNode->transform;
+				auto model = node->transform;
 			
 				shader->SetUniformValue("ProjectionMatrix", projection);
 				shader->SetUniformValue("ViewMatrix", view);
