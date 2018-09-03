@@ -56,8 +56,9 @@ void GLES3Renderer::Draw(Scene *pScene)
 				shader->SetUniformValue("MVPMatrix", mvp);
 
 				auto vbo = GetOrCreateVertexArray(node);
-
-				vbo->Draw();
+				if (vbo) {
+					vbo->Draw();
+				}
 			}
 		}
 	}
@@ -89,8 +90,30 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const Node *p
 
 	auto mesh = pNode->GetMesh();
 	if (!mesh)return nullptr;
+
+
+	std::shared_ptr<VertexArray> vbo;
+
+	switch (mesh->GetTopology()) 
+	{
+	case Mesh::Triangles:
+	{
+		vbo = VertexArray::CreateTriangles(mesh->GetVertices(), mesh->GetColors());
+		break;
+	}
+
+	case Mesh::Lines:
+	{
+		vbo = VertexArray::CreateLines(mesh->GetVertices(), mesh->GetColors());
+		break;
+	}
+	}
 	
-	auto vbo = VertexArray::Create(mesh->GetVertices());
-	m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vbo));
+	if (vbo) {
+		m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vbo));
+	}
+	else {
+		LOGE << "fal to create triangles";
+	}
 	return vbo;
 }

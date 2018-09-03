@@ -4,6 +4,9 @@
 #include <assert.h>
 
 
+///
+/// VertexBuffer
+///
 VertexBuffer::VertexBuffer()
 {
 	glGenBuffers(1, &m_vbo);
@@ -28,7 +31,11 @@ void VertexBuffer::BufferData(const std::vector<float> &vertices)
 }
 
 
-VertexArray::VertexArray()
+///
+/// VertexArray
+///
+VertexArray::VertexArray(uint32_t topology, int vertexCount)
+	: m_topology(topology), m_vertexCount(vertexCount)
 {
 	glGenVertexArrays(1, &m_vao);
 	assert(m_vao);
@@ -40,15 +47,33 @@ VertexArray::~VertexArray()
 	m_vao = 0;
 }
 
-std::shared_ptr<VertexArray> VertexArray::Create(const std::vector<float> &vertices)
+std::shared_ptr<VertexArray> VertexArray::Create(uint32_t topology, const std::vector<float> &vertices, const std::vector<float> &colors)
 {
-	auto vao = std::make_shared<VertexArray>();
+	auto vao = std::make_shared<VertexArray>(topology, vertices.size()/3);
 
-	auto vbo = std::make_shared<VertexBuffer>();
-	vbo->BufferData(vertices);
-	vao->AddAttribute(vbo);
+	{
+		auto vbo = std::make_shared<VertexBuffer>();
+		vbo->BufferData(vertices);
+		vao->AddAttribute(vbo, 3);
+	}
+
+	{
+		auto vbo = std::make_shared<VertexBuffer>();
+		vbo->BufferData(colors);
+		vao->AddAttribute(vbo, 3);
+	}
 
 	return vao;
+}
+
+std::shared_ptr<VertexArray> VertexArray::CreateTriangles( const std::vector<float> &vertices, const std::vector<float> &colors)
+{
+	return Create(GL_TRIANGLES, vertices, colors);
+}
+
+std::shared_ptr<VertexArray> VertexArray::CreateLines(const std::vector<float> &vertices, const std::vector<float> &colors)
+{
+	return Create(GL_LINES, vertices, colors);
 }
 
 void VertexArray::Bind()
@@ -56,7 +81,7 @@ void VertexArray::Bind()
 	glBindVertexArray(m_vao);
 }
 
-void VertexArray::AddAttribute(const std::shared_ptr<VertexBuffer> &vbo)
+void VertexArray::AddAttribute(const std::shared_ptr<VertexBuffer> &vbo, int components)
 {
 	Bind();
 	auto attribute = static_cast<GLuint>(m_attributes.size());
@@ -64,11 +89,11 @@ void VertexArray::AddAttribute(const std::shared_ptr<VertexBuffer> &vbo)
 
 	glEnableVertexAttribArray(attribute);
 	vbo->Bind();
-	glVertexAttribPointer(attribute, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(attribute, components, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
 void VertexArray::Draw()
 {
 	Bind();
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(m_topology, 0, m_vertexCount);
 }

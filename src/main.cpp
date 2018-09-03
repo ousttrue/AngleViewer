@@ -241,7 +241,7 @@ int WINAPI WinMain(
 	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
 
 	Scene scene;
-	scene.AddTriangle(
+	scene.Setup(
 		std::string(vs.begin(), vs.end()),
 		std::string(fs.begin(), fs.end()));
 	g_scene = &scene;

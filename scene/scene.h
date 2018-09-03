@@ -20,7 +20,7 @@ class Scene
 public:
 	Scene();
 
-	void AddTriangle(const std::string &vs, const std::string &fs);
+	void Setup(const std::string &vs, const std::string &fs);
 	void Update(uint32_t now);
 
 	int GetNodeCount()const { return static_cast<int>(m_nodes.size()); }
