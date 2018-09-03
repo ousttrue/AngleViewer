@@ -16,7 +16,7 @@ class PersepectiveCamera: public ICamera
     float m_fovyDegree = 30.0f;
     float m_aspect = 1.0f;
     float m_near = 1.0f;
-    float m_far = 20.0f;
+    float m_far = 100.0f;
 
 public:
     PersepectiveCamera()

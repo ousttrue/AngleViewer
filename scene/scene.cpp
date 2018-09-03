@@ -12,27 +12,31 @@ Scene::Scene()
 
 void Scene::Setup(const std::string &vs, const std::string &fs)
 {
+	const auto grid_size = 1.0f;
+	const auto grid_count = 5;
+	const auto grid_edge = grid_size * grid_count;
+
 	// Axis
 	{
 		std::vector<float> vertices = {
 			// x
-			-1.0f, 0, 0,
+			-grid_edge, 0, 0,
 			0, 0, 0,
 
 			0, 0, 0,
-			1.0f, 0, 0,
+			grid_edge, 0, 0,
 			// y
-			0, -1.0f, 0,
+			0, -grid_edge, 0,
 			0, 0, 0,
 
 			0, 0, 0,
-			0, 1.0f, 0,
+			0, grid_edge, 0,
 			// z
-			0, 0, -1.0f,
+			0, 0, -grid_edge,
 			0, 0, 0,
 
 			0, 0, 0,
-			0, 0, 1.0f,
+			0, 0, grid_edge,
 		};
 
 		std::vector<float> colors = {
@@ -52,6 +56,52 @@ void Scene::Setup(const std::string &vs, const std::string &fs)
 			0, 0, 1.0f,
 			0, 0, 1.0f,
 		};
+
+		auto node = Node::Create();
+		node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, Mesh::Lines, vertices, colors)));
+		m_nodes.push_back(node);
+	}
+
+	// Grid
+	{
+		std::vector<float> vertices;
+		std::vector<float> colors;
+		for (int i = -grid_count; i <= grid_count; ++i)
+		{
+			if (i == 0)continue;
+
+			vertices.push_back(-grid_edge);
+			vertices.push_back(0);
+			vertices.push_back(grid_size*i);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+
+			vertices.push_back(grid_edge);
+			vertices.push_back(0);
+			vertices.push_back(grid_size*i);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+		}
+		for (int i = -grid_count; i <= grid_count; ++i)
+		{
+			if (i == 0)continue;
+
+			vertices.push_back(grid_size*i);
+			vertices.push_back(0);
+			vertices.push_back(-grid_edge);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+
+			vertices.push_back(grid_size*i);
+			vertices.push_back(0);
+			vertices.push_back(grid_edge);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+			colors.push_back(0.5f);
+		}
 
 		auto node = Node::Create();
 		node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, Mesh::Lines, vertices, colors)));

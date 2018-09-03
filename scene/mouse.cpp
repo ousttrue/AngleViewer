@@ -91,6 +91,6 @@ void OrbitMover::Update()
 {
 	m_node->transform =
 		glm::translate(glm::mat4(1), glm::vec3(m_shiftX, m_shiftY, -m_distance))
-		* glm::eulerAngleYXZ(m_yaw, m_pitch, 0.0f)
+		* glm::transpose(glm::eulerAngleYXZ(-m_yaw, -m_pitch, 0.0f))
 		;
 }
