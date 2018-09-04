@@ -53,4 +53,6 @@ public:
 	}
 
 	void SetScreenSize(int w, int h);
+
+	void Load(const std::wstring &path);
 };

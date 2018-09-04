@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <plog/Log.h>
 #include <imgui.h>
+#include <fstream>
 
 
 Scene::Scene()
@@ -111,22 +112,85 @@ void Scene::Setup(const std::string &vs, const std::string &fs)
 
 	// triangle
 	{
-		std::vector<float> vertices = { 
-			0.0f,  0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f,  0.0f };
+std::vector<float> vertices = {
+	0.0f,  0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,
+	0.5f, -0.5f,  0.0f };
 
-		std::vector<float> colors = {
-			1.0f, 0, 0,
-			0, 1.0f, 0,
-			0, 0, 1.0f,
-		};
+std::vector<float> colors = {
+	1.0f, 0, 0,
+	0, 1.0f, 0,
+	0, 0, 1.0f,
+};
 
-		auto node = Node::Create();
-		node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, Mesh::Triangles, vertices, colors)));
-		node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
-		m_nodes.push_back(node);
+auto node = Node::Create();
+node->SetMesh(std::shared_ptr<Mesh>(new Mesh(vs, fs, Mesh::Triangles, vertices, colors)));
+node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
+m_nodes.push_back(node);
 	}
+}
+
+static std::wstring OpenDialog()
+{
+	OPENFILENAME ofn;       // common dialog box structure
+	TCHAR szFile[260] = { 0 };       // if using TCHAR macros
+
+									 // Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+	if (!GetOpenFileName(&ofn) == TRUE)
+	{
+		// use ofn.lpstrFile
+		return L"";
+	}
+
+	return szFile;
+}
+
+static std::vector<uint8_t> ReadAllBytes(const std::wstring &path)
+{
+	std::vector<uint8_t> bytes;
+
+	std::ifstream ifs(path, std::ios::binary | std::ios::ate);
+	if (ifs) {
+		auto pos = ifs.tellg();
+		bytes.resize(static_cast<size_t>(pos));
+
+		ifs.seekg(0, std::ios::beg);
+		ifs.read((char*)bytes.data(), bytes.size());
+
+		ifs.close();
+	}
+
+	return bytes;
+}
+
+static bool HasExt(const std::wstring &path, const std::wstring &ext)
+{
+	if (path.size() < ext.size()) {
+		return false;
+	}
+
+	auto lhs = path.begin() + path.size() - ext.size();
+	auto rhs = ext.begin();
+	for (; lhs != path.end(); ++lhs, ++rhs)
+	{
+		if (tolower(*lhs) != tolower(*rhs)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void Scene::Update(uint32_t now)
@@ -151,10 +215,14 @@ void Scene::Update(uint32_t now)
 
 	ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
 	if (ImGui::BeginMenuBar()) {
-		if (ImGui::BeginMenu("File"))
-		{
+		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Open")) {
+				auto path = OpenDialog();
+				if (!path.empty()) {
 
+					Load(path);
+
+				}
 			}
 
 			ImGui::EndMenu();
@@ -170,4 +238,28 @@ void Scene::Update(uint32_t now)
 void Scene::SetScreenSize(int w, int h)
 {
 	m_camera->SetScreenSize(w, h);
+}
+
+class FileSystem
+{
+public:
+};
+
+void Scene::Load(const std::wstring &path)
+{
+	if (HasExt(path, L".gltf")) {
+
+		LOGI << "ToDo: load gltf";
+
+	}
+	else if (HasExt(path, L".glb")
+		|| HasExt(path, L".vrm")) {
+
+		auto bytes = ReadAllBytes(path);
+		LOGI << bytes.size() << " bytes";
+
+	}
+	else {
+		LOGW << "unknown file type: " << path;
+	}
 }
