@@ -18,7 +18,8 @@
 /// const
 ///
 const auto RESOURCE_TYPE = L"SHADERSOURCE";
-
+const auto CLASS_NAME = L"AngleViewerWindow";
+const auto WINDOW_NAME = L"AngleViewer";
 
 ///
 /// globals
@@ -251,7 +252,7 @@ int WINAPI WinMain(
 	wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndclass.hbrBackground = NULL;
 	wndclass.lpszMenuName = NULL;
-	wndclass.lpszClassName = L"GL Window";
+	wndclass.lpszClassName = CLASS_NAME;
 	wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 	RegisterClassEx(&wndclass);
@@ -273,8 +274,8 @@ int WINAPI WinMain(
 
 	LOGD << "CreateWindow";
 	HWND hwnd = CreateWindow(
-		L"GL Window",
-		L"GL Window",
+		CLASS_NAME,
+		WINDOW_NAME,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT,
