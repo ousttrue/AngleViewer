@@ -3,8 +3,20 @@
 
 class GUI
 {
+	bool m_initialized = false;
 public:
 	GUI();
 	~GUI();
-	void Render(Scene *pScene, int w, int h);
+
+	void MouseMove(int x, int y);
+	void MouseLeftDown();
+	void MouseLeftUp();
+	void MouseMiddleDown();
+	void MouseMiddleUp();
+	void MouseRightDown();
+	void MouseRightUp();
+	void MouseWheel(int d);
+
+	void SetScreenSize(int w, int h);
+	void Render(Scene *pScene, float deltaSeconds);
 };

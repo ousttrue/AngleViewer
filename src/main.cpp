@@ -25,8 +25,7 @@ const auto RESOURCE_TYPE = L"SHADERSOURCE";
 ///
 GLES3Renderer *g_renderer=nullptr;
 Scene *g_scene = nullptr;
-int g_w = 0;
-int g_h = 0;
+GUI *g_gui = nullptr;
 
 
 class MouseCapture
@@ -84,10 +83,11 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 	case WM_SIZE:
 	{
-		g_w = LOWORD(lParam);
-		g_h = HIWORD(lParam);
-		g_scene->SetScreenSize(g_w, g_h);
-		g_renderer->Resize(g_w, g_h);
+		auto w = LOWORD(lParam);
+		auto h = HIWORD(lParam);
+		g_scene->SetScreenSize(w, h);
+		g_renderer->Resize(w, h);
+		g_gui->SetScreenSize(w, h);
 		return 0;
 	}
 
@@ -101,7 +101,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 	case WM_MOUSEMOVE:
 	{
-		g_scene->GetMouseObserver()->MouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		auto x = GET_X_LPARAM(lParam);
+		auto y = GET_Y_LPARAM(lParam);
+		g_scene->GetMouseObserver()->MouseMove(x, y);
+		g_gui->MouseMove(x, y);
 		return 0;
 	}
 
@@ -109,6 +112,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Down(MouseCapture::LEFT, hwnd);
 		g_scene->GetMouseObserver()->MouseLeftDown();
+		g_gui->MouseLeftDown();
 		return 0;
 	}
 
@@ -116,6 +120,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Up(MouseCapture::LEFT);
 		g_scene->GetMouseObserver()->MouseLeftUp();
+		g_gui->MouseLeftUp();
 		return 0;
 	}
 
@@ -123,6 +128,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Down(MouseCapture::MIDDLE, hwnd);
 		g_scene->GetMouseObserver()->MouseMiddleDown();
+		g_gui->MouseMiddleDown();
 		return 0;
 	}
 
@@ -130,6 +136,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Up(MouseCapture::MIDDLE);
 		g_scene->GetMouseObserver()->MouseMiddleUp();
+		g_gui->MouseMiddleUp();
 		return 0;
 	}
 
@@ -137,6 +144,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Down(MouseCapture::RIGHT, hwnd);
 		g_scene->GetMouseObserver()->MouseRightDown();
+		g_gui->MouseRightDown();
 		return 0;
 	}
 
@@ -144,12 +152,15 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		m_capture.Up(MouseCapture::RIGHT);
 		g_scene->GetMouseObserver()->MouseRightUp();
+		g_gui->MouseRightUp();
 		return 0;
 	}
 
 	case WM_MOUSEWHEEL:
 	{
-		g_scene->GetMouseObserver()->MouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
+		auto d = GET_WHEEL_DELTA_WPARAM(wParam);
+		g_scene->GetMouseObserver()->MouseWheel(d);
+		g_gui->MouseWheel(d);
 		return 0;
 	}
 
@@ -164,8 +175,7 @@ static int mainloop(HWND hwnd)
 	EglApp app(hwnd);
 	LOGD << "egl initialized";
 
-	GUI gui;
-
+	DWORD lastTime = 0;
 	while (true)
 	{
 		// message pump
@@ -180,10 +190,13 @@ static int mainloop(HWND hwnd)
 		}
 
 		// rendering
-		g_scene->Update(timeGetTime());
+		auto now = timeGetTime();
+		auto delta = now - lastTime;
+		lastTime = now;
+		g_scene->Update(now);
 		g_renderer->Draw(g_scene);
 
-		gui.Render(g_scene, g_w, g_h);
+		g_gui->Render(g_scene, delta * 0.001f);
 		app.present();
 	}
 
@@ -249,6 +262,9 @@ int WINAPI WinMain(
 
 	GLES3Renderer renderer;
 	g_renderer = &renderer;
+
+	GUI gui;
+	g_gui = &gui;
 
 	LOGD << "CreateWindow";
 	HWND hwnd = CreateWindow(
