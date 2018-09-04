@@ -16,6 +16,9 @@ class Scene
 	std::shared_ptr<IMouseObserver> m_mouseObserver;
 
 	uint32_t m_time = 0;
+	uint32_t m_frameCount = 0;
+	uint32_t m_seconds = 0;
+	uint32_t m_fps = 0;
 
 public:
 	Scene();

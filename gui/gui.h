@@ -1,6 +1,3 @@
-#include <scene.h>
-
-
 class GUI
 {
 	bool m_initialized = false;
@@ -18,5 +15,7 @@ public:
 	void MouseWheel(int d);
 
 	void SetScreenSize(int w, int h);
-	void Render(Scene *pScene, float deltaSeconds);
+
+	void Begin(float deltaSeconds);
+	void End();
 };

@@ -1,6 +1,7 @@
 #include "scene.h"
 #include <Windows.h>
 #include <plog/Log.h>
+#include <imgui.h>
 
 
 Scene::Scene()
@@ -132,6 +133,13 @@ void Scene::Update(uint32_t now)
 {
 	auto delta = m_time == 0 ? 0 : now - m_time;
 	m_time = now;
+	m_frameCount++;
+	auto seconds = now / 1000;
+	if (m_seconds != seconds) {
+		m_fps = m_frameCount;
+		m_frameCount = 0;
+		m_seconds = seconds;
+	}
 
 	auto time = AnimationTime{
 		now * 0.001f,
@@ -140,6 +148,23 @@ void Scene::Update(uint32_t now)
 	for (auto node : m_nodes) {
 		node->Update(time);
 	}
+
+	ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar()) {
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open")) {
+
+			}
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::Text("time: %d", now);
+	ImGui::Text("fps: %d", m_fps);
+	ImGui::End();
 }
 
 void Scene::SetScreenSize(int w, int h)

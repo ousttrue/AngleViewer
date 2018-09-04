@@ -193,10 +193,15 @@ static int mainloop(HWND hwnd)
 		auto now = timeGetTime();
 		auto delta = now - lastTime;
 		lastTime = now;
-		g_scene->Update(now);
-		g_renderer->Draw(g_scene);
 
-		g_gui->Render(g_scene, delta * 0.001f);
+		{
+			g_gui->Begin(delta * 0.001f);
+
+			g_scene->Update(now);
+
+			g_renderer->Draw(g_scene);
+			g_gui->End();
+		}
 		app.present();
 	}
 

@@ -16,5 +16,6 @@ TARGET_COMPILE_DEFINITIONS(${SUB_NAME} PUBLIC
 TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
     ../glm
     ../plog/include
+    ../imgui
 	)
 

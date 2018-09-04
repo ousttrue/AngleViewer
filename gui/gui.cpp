@@ -74,7 +74,7 @@ void GUI::SetScreenSize(int w, int h)
 	io.DisplaySize = ImVec2((float)w, (float)h);
 }
 
-void GUI::Render(Scene *pScene, float deltaSeconds)
+void GUI::Begin(float deltaSeconds)
 {
 	if (!m_initialized) {
 		//ImGui_ImplOpenGL3_CreateFontsTexture();
@@ -91,18 +91,10 @@ void GUI::Render(Scene *pScene, float deltaSeconds)
 	io.DeltaTime = deltaSeconds;
 
 	ImGui::NewFrame();
+}
 
-	// GUI
-	ImGui::Text("Hello, world %d", 123);
-	if (ImGui::Button("Save"))
-	{
-		// do stuff
-	}
-	/*
-	ImGui::InputText("string", buf, IM_ARRAYSIZE(buf));
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-	*/
-
+void GUI::End()
+{
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
