@@ -43,13 +43,13 @@ static GLuint LoadShader(GLenum type, const char *shaderSrc)
 Shader::Shader(GLuint program) :m_program(program) {
 }
 
-std::shared_ptr<Shader> Shader::Create(const std::string &vs, const std::string &fs)
+std::shared_ptr<Shader> Shader::Create(const Material &material)
 {
-	auto vertexShader = LoadShader(GL_VERTEX_SHADER, vs.c_str());
+	auto vertexShader = LoadShader(GL_VERTEX_SHADER, material.vs.c_str());
 	if (!vertexShader) {
 		return  nullptr;
 	}
-	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fs.c_str());
+	auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, material.fs.c_str());
 	if (!fragmentShader) {
 		return nullptr;
 	}

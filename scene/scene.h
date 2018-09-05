@@ -4,6 +4,7 @@
 #include "mesh.h"
 #include "node_animation.h"
 #include "node.h"
+#include "material.h"
 
 
 class Scene
@@ -13,11 +14,10 @@ class Scene
 	uint32_t m_seconds = 0;
 	uint32_t m_fps = 0;
 
-	std::string m_vs;
-	std::string m_fs;
+	Material m_material;
 
 public:
-	Scene(const std::string &vs, const std::string &fs);
+	Scene(const Material &material);
 
 
 private:

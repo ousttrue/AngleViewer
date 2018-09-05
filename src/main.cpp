@@ -224,6 +224,12 @@ static std::vector<uint8_t> GetResource(HINSTANCE hInst, int id, const wchar_t *
 }
 
 
+static std::string to_string(const std::vector<uint8_t> &src)
+{
+	return std::string(src.begin(), src.end());
+}
+
+
 static std::wstring SjisToUnicode(const std::string &src)
 {
 	auto size = MultiByteToWideChar(CP_OEMCP, 0, src.c_str(), -1, NULL, 0);
@@ -269,11 +275,13 @@ int WINAPI WinMain(
 
 	RegisterClassEx(&wndclass);
 
-	auto vs = GetResource(hInstance, ID_VS, RESOURCE_TYPE);
-	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
+	Material material
+	{
+		to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
+		to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE))
+	};
 
-	Scene scene(std::string(vs.begin(), vs.end()),
-		std::string(fs.begin(), fs.end()));
+	Scene scene(material);
 
 	if (__argc == 1) {
 		scene.CreateDefaultScene();

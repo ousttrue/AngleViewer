@@ -91,7 +91,7 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
 	auto mesh = pNode->GetMesh();
 	if (!mesh)return nullptr;
 
-	auto shader = Shader::Create(mesh->GetVertexShader(), mesh->GetFragmentShader());
+	auto shader = Shader::Create(mesh->GetMaterial());
 	if (shader) {
 		m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
 	}

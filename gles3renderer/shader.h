@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <glm/glm.hpp>
+#include "material.h"
 
 
 class Shader
@@ -11,7 +12,7 @@ class Shader
 public:
 	Shader(uint32_t program);
 
-	static std::shared_ptr<Shader> Create(const std::string &vs, const std::string &fs);
+	static std::shared_ptr<Shader> Create(const Material &material);
 	
 	uint32_t GetUniformLocation(const std::string &name);
 	void SetUniformValue(uint32_t location, const glm::mat4 &m);
