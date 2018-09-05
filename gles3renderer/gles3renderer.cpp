@@ -115,13 +115,13 @@ namespace agv {
 
 			switch (mesh->GetTopology())
 			{
-			case Mesh::Triangles:
+			case scene::Mesh::Triangles:
 			{
 				vbo = VertexArray::CreateTriangles(mesh->GetVertices(), mesh->GetColors());
 				break;
 			}
 
-			case Mesh::Lines:
+			case scene::Mesh::Lines:
 			{
 				vbo = VertexArray::CreateLines(mesh->GetVertices(), mesh->GetColors());
 				break;

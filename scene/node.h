@@ -48,9 +48,9 @@ namespace agv {
 			}
 
 		public:
-			static std::shared_ptr<Node> CreateGrid(const Material &material, float size, int count);
-			static std::shared_ptr<Node> CreateAxis(const Material &material, float size);
-			static std::shared_ptr<Node> CreateSampleTriangle(const Material &material, float size);
+			static std::shared_ptr<Node> CreateGrid(const renderer::Material &material, float size, int count);
+			static std::shared_ptr<Node> CreateAxis(const renderer::Material &material, float size);
+			static std::shared_ptr<Node> CreateSampleTriangle(const renderer::Material &material, float size);
 		};
 	}
 }

@@ -6,7 +6,7 @@
 
 namespace agv {
 	namespace scene {
-		std::shared_ptr<Node> Node::CreateGrid(const Material &material, float grid_size, int grid_count)
+		std::shared_ptr<Node> Node::CreateGrid(const renderer::Material &material, float grid_size, int grid_count)
 		{
 			auto grid_edge = grid_size * grid_count;
 			std::vector<float> vertices;
@@ -53,7 +53,7 @@ namespace agv {
 			return node;
 		}
 
-		std::shared_ptr<Node> Node::CreateAxis(const Material &material, float grid_edge)
+		std::shared_ptr<Node> Node::CreateAxis(const renderer::Material &material, float grid_edge)
 		{
 			std::vector<float> vertices = {
 				// x
@@ -99,7 +99,7 @@ namespace agv {
 			return node;
 		}
 
-		std::shared_ptr<Node> Node::CreateSampleTriangle(const Material &material, float size)
+		std::shared_ptr<Node> Node::CreateSampleTriangle(const renderer::Material &material, float size)
 		{
 			std::vector<float> vertices = {
 				0.0f,  size, 0.0f,

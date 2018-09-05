@@ -6,6 +6,45 @@
 #include <nlohmann/json.hpp>
 
 
+#include <GLTFSDK/Constants.h>
+#include <GLTFSDK/Deserialize.h>
+#include <GLTFSDK/ExtensionsKHR.h>
+#include <GLTFSDK/GLBResourceReader.h>
+#include <GLTFSDK/GLBResourceWriter.h>
+#include <GLTFSDK/MeshPrimitiveUtils.h>
+#include <GLTFSDK/Serialize.h>
+using namespace Microsoft::glTF;
+class StreamReaderWriter : public Microsoft::glTF::IStreamWriter, public Microsoft::glTF::IStreamReader
+{
+public:
+	StreamReaderWriter()
+		: m_streams()
+	{
+	}
+
+	std::shared_ptr<std::ostream> GetOutputStream(const std::string& uri) const override
+	{
+		return GetStream(uri);
+	}
+
+	std::shared_ptr<std::istream> GetInputStream(const std::string& uri) const override
+	{
+		return GetStream(uri);
+	}
+private:
+	std::shared_ptr<std::iostream> GetStream(const std::string& uri) const
+	{
+		if (m_streams.find(uri) == m_streams.end())
+		{
+			m_streams[uri] = std::make_shared<std::stringstream>();
+		}
+		return m_streams[uri];
+	}
+
+	mutable std::unordered_map<std::string, std::shared_ptr<std::stringstream>> m_streams;
+};
+
+
 static std::wstring OpenDialog()
 {
 	OPENFILENAME ofn;       // common dialog box structure
@@ -72,7 +111,7 @@ static bool HasExt(const std::wstring &path, const std::wstring &ext)
 
 namespace agv {
 	namespace scene {
-		Scene::Scene(const Material &material)
+		Scene::Scene(const renderer::Material &material)
 			: m_material(material)
 		{
 			m_camera = std::make_shared<PersepectiveCamera>();
@@ -143,24 +182,48 @@ namespace agv {
 			ImGui::ShowDemoWindow();
 		}
 
-		class FileSystem
+		Document ImportAndParseGLB(std::shared_ptr<IStreamReader> streamReader, const std::shared_ptr<std::istream>& glbStream)
 		{
-		public:
-		};
+			GLBResourceReader resourceReader(streamReader, glbStream);
+			auto json = resourceReader.GetJson();
+			auto doc = Deserialize(json);
+			return doc;
+		}
+
+		Document ImportAndParseGLTF(std::shared_ptr<IStreamReader> streamReader, const std::shared_ptr<std::istream>& stream)
+		{
+			GLTFResourceReader resourceReader(streamReader);
+			auto json = std::string(std::istreambuf_iterator<char>(*stream), std::istreambuf_iterator<char>());
+			auto doc = Deserialize(json);
+			return doc;
+		}
 
 		void Scene::Load(const std::wstring &path)
 		{
 			if (HasExt(path, L".gltf")) {
 
-				auto json = nlohmann::json::parse(ReadAllBytes(path));
-				LOGI << "gltf: " << json;
+				auto bytes = ReadAllBytes(path);
 
+				auto input = std::make_shared<std::stringstream>(std::string(bytes.begin(), bytes.end()));
+				auto streamWriter = std::make_shared<StreamReaderWriter>();
+
+				auto doc = ImportAndParseGLTF(streamWriter, input);
+
+				int a = 0;
 			}
 			else if (HasExt(path, L".glb")
 				|| HasExt(path, L".vrm")) {
 
 				auto bytes = ReadAllBytes(path);
-				LOGI << bytes.size() << " bytes";
+
+				//auto input = ReadLocalAsset(resourcePath);
+				auto readwriter = std::make_shared<StreamReaderWriter>();
+				auto input = std::make_shared<std::stringstream>(std::string(bytes.begin(), bytes.end()));
+
+				auto doc = ImportAndParseGLB(readwriter, input);
+
+				int a = 0;
+				//LOGI << bytes.size() << " bytes";
 
 			}
 			else {

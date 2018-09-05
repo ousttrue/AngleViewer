@@ -340,7 +340,7 @@ int WINAPI WinMain(
 
 	RegisterClassEx(&wndclass);
 
-	Material material
+	agv::renderer::Material material
 	{
 		to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
 		to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE))

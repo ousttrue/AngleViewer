@@ -16,10 +16,10 @@ namespace agv {
 			uint32_t m_seconds = 0;
 			uint32_t m_fps = 0;
 
-			Material m_material;
+			renderer::Material m_material;
 
 		public:
-			Scene(const Material &material);
+			Scene(const renderer::Material &material);
 
 
 		private:

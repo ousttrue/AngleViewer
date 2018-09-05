@@ -2,9 +2,14 @@
 #include <string>
 
 
-struct Material
-{
-    std::string vs;
-    std::string fs;
-};
+namespace agv {
+	namespace renderer {
 
+		struct Material
+		{
+			std::string vs;
+			std::string fs;
+		};
+
+	}
+}
