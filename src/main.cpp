@@ -86,7 +86,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	{
 		auto w = LOWORD(lParam);
 		auto h = HIWORD(lParam);
-		g_scene->SetScreenSize(w, h);
+		g_scene->GetCamera()->SetScreenSize(w, h);
 		g_renderer->Resize(w, h);
 		g_gui->SetScreenSize(w, h);
 		return 0;
@@ -224,6 +224,18 @@ static std::vector<uint8_t> GetResource(HINSTANCE hInst, int id, const wchar_t *
 }
 
 
+static std::wstring SjisToUnicode(const std::string &src)
+{
+	auto size = MultiByteToWideChar(CP_OEMCP, 0, src.c_str(), -1, NULL, 0);
+	if (size == 0) {
+		return L"";
+	}
+	std::vector<wchar_t> buf(size-1);
+	size = MultiByteToWideChar(CP_OEMCP, 0, src.c_str(), -1, &buf[0], static_cast<int>(buf.size()));
+	return std::wstring(buf.begin(), buf.begin());
+}
+
+
 ///
 /// main
 ///
@@ -260,10 +272,16 @@ int WINAPI WinMain(
 	auto vs = GetResource(hInstance, ID_VS, RESOURCE_TYPE);
 	auto fs = GetResource(hInstance, ID_FS, RESOURCE_TYPE);
 
-	Scene scene;
-	scene.Setup(
-		std::string(vs.begin(), vs.end()),
+	Scene scene(std::string(vs.begin(), vs.end()),
 		std::string(fs.begin(), fs.end()));
+
+	if (__argc == 1) {
+		scene.CreateDefaultScene();
+	}
+	else{
+		scene.Load(SjisToUnicode(__argv[1]));
+	}
+
 	g_scene = &scene;
 
 	GLES3Renderer renderer;

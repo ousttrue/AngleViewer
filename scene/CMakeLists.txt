@@ -17,5 +17,6 @@ TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
     ../glm
     ../plog/include
     ../imgui
+    ../json/include
 	)
 

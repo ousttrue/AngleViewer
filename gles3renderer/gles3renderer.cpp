@@ -18,6 +18,32 @@ void GLES3Renderer::Resize(int w, int h)
 	m_height = h;
 }
 
+void GLES3Renderer::DrawNode(const ICamera *camera, const Node *cameraNode, const Node *node)
+{
+	auto shader = GetOrCreateShader(node);
+	if (!shader) {
+		return;
+	}
+
+	shader->Use();
+
+	auto projection = camera->GetMatrix();
+	auto view = cameraNode->transform;
+	auto model = node->transform;
+
+	shader->SetUniformValue("ProjectionMatrix", projection);
+	shader->SetUniformValue("ViewMatrix", view);
+	shader->SetUniformValue("ModelMatrix", model);
+
+	glm::mat4 mvp = projection * view * model;
+	shader->SetUniformValue("MVPMatrix", mvp);
+
+	auto vbo = GetOrCreateVertexArray(node);
+	if (vbo) {
+		vbo->Draw();
+	}
+}
+
 void GLES3Renderer::Draw(Scene *pScene)
 {
 	//
@@ -37,29 +63,19 @@ void GLES3Renderer::Draw(Scene *pScene)
 	// Draw
 	//
 	if (pScene) {
-		auto count = pScene->GetNodeCount();
-		for (int i = 0; i < count; ++i) {
-			auto node = pScene->GetNode(i);
-			
-			auto shader = GetOrCreateShader(node);
-			if (shader) {
-				shader->Use();
+		{
+			auto count = pScene->GetGizmosCount();
+			for (int i = 0; i < count; ++i) {
+				auto node = pScene->GetGizmos(i);
+				DrawNode(camera, cameraNode, node);
+			}
+		}
 
-				auto projection = camera->GetMatrix();
-				auto view = cameraNode->transform;
-				auto model = node->transform;
-			
-				shader->SetUniformValue("ProjectionMatrix", projection);
-				shader->SetUniformValue("ViewMatrix", view);
-				shader->SetUniformValue("ModelMatrix", model);
-
-				glm::mat4 mvp = projection * view * model;
-				shader->SetUniformValue("MVPMatrix", mvp);
-
-				auto vbo = GetOrCreateVertexArray(node);
-				if (vbo) {
-					vbo->Draw();
-				}
+		{
+			auto count = pScene->GetNodeCount();
+			for (int i = 0; i < count; ++i) {
+				auto node = pScene->GetNode(i);
+				DrawNode(camera, cameraNode, node);
 			}
 		}
 	}

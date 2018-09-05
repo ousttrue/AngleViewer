@@ -18,6 +18,7 @@ class GLES3Renderer
 public:
 	GLES3Renderer();
 	void Resize(int w, int h);
+	void DrawNode(const ICamera *camera, const Node *cameraNode, const Node *node);
 	void Draw(Scene *pScene);
 
 private:
