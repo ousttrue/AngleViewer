@@ -70,94 +70,98 @@ static bool HasExt(const std::wstring &path, const std::wstring &ext)
 }
 
 
-Scene::Scene(const Material &material)
-	: m_material(material)
-{
-	m_camera = std::make_shared<PersepectiveCamera>();
-	m_cameraNode = Node::Create();
-	m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
+namespace agv {
+	namespace scene {
+		Scene::Scene(const Material &material)
+			: m_material(material)
+		{
+			m_camera = std::make_shared<PersepectiveCamera>();
+			m_cameraNode = Node::Create();
+			m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
 
-	Setup();
-}
+			Setup();
+		}
 
-void Scene::Setup()
-{
-	const auto grid_size = 1.0f;
-	const auto grid_count = 5;
-	const auto grid_edge = grid_size * grid_count;
+		void Scene::Setup()
+		{
+			const auto grid_size = 1.0f;
+			const auto grid_count = 5;
+			const auto grid_edge = grid_size * grid_count;
 
-	m_gizmos.push_back(Node::CreateAxis(m_material, grid_edge));
-	m_gizmos.push_back(Node::CreateGrid(m_material, grid_size, grid_count));
-}
+			m_gizmos.push_back(Node::CreateAxis(m_material, grid_edge));
+			m_gizmos.push_back(Node::CreateGrid(m_material, grid_size, grid_count));
+		}
 
-void Scene::CreateDefaultScene()
-{
-	m_nodes.push_back(Node::CreateSampleTriangle(m_material, 1.0f));
-}
+		void Scene::CreateDefaultScene()
+		{
+			m_nodes.push_back(Node::CreateSampleTriangle(m_material, 1.0f));
+		}
 
-void Scene::Update(uint32_t now)
-{
-	auto delta = m_time == 0 ? 0 : now - m_time;
-	m_time = now;
-	m_frameCount++;
-	auto seconds = now / 1000;
-	if (m_seconds != seconds) {
-		m_fps = m_frameCount;
-		m_frameCount = 0;
-		m_seconds = seconds;
-	}
-
-	auto time = AnimationTime{
-		now * 0.001f,
-		delta * 0.001f,
-	};
-	for (auto node : m_nodes) {
-		node->Update(time);
-	}
-
-	ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
-	if (ImGui::BeginMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Open")) {
-				auto path = OpenDialog();
-				if (!path.empty()) {
-
-					Load(path);
-
-				}
+		void Scene::Update(uint32_t now)
+		{
+			auto delta = m_time == 0 ? 0 : now - m_time;
+			m_time = now;
+			m_frameCount++;
+			auto seconds = now / 1000;
+			if (m_seconds != seconds) {
+				m_fps = m_frameCount;
+				m_frameCount = 0;
+				m_seconds = seconds;
 			}
 
-			ImGui::EndMenu();
+			auto time = AnimationTime{
+				now * 0.001f,
+				delta * 0.001f,
+			};
+			for (auto node : m_nodes) {
+				node->Update(time);
+			}
+
+			ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
+			if (ImGui::BeginMenuBar()) {
+				if (ImGui::BeginMenu("File")) {
+					if (ImGui::MenuItem("Open")) {
+						auto path = OpenDialog();
+						if (!path.empty()) {
+
+							Load(path);
+
+						}
+					}
+
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+
+			ImGui::Text("time: %d", now);
+			ImGui::Text("fps: %d", m_fps);
+			ImGui::End();
 		}
-		ImGui::EndMenuBar();
-	}
 
-	ImGui::Text("time: %d", now);
-	ImGui::Text("fps: %d", m_fps);
-	ImGui::End();
-}
+		class FileSystem
+		{
+		public:
+		};
 
-class FileSystem
-{
-public:
-};
+		void Scene::Load(const std::wstring &path)
+		{
+			if (HasExt(path, L".gltf")) {
 
-void Scene::Load(const std::wstring &path)
-{
-	if (HasExt(path, L".gltf")) {
+				auto json = nlohmann::json::parse(ReadAllBytes(path));
+				LOGI << "gltf: " << json;
 
-		auto json = nlohmann::json::parse(ReadAllBytes(path));
-		LOGI << "gltf: " << json;
+			}
+			else if (HasExt(path, L".glb")
+				|| HasExt(path, L".vrm")) {
 
-	}
-	else if (HasExt(path, L".glb")
-		|| HasExt(path, L".vrm")) {
+				auto bytes = ReadAllBytes(path);
+				LOGI << bytes.size() << " bytes";
 
-		auto bytes = ReadAllBytes(path);
-		LOGI << bytes.size() << " bytes";
-
-	}
-	else {
-		LOGW << "unknown file type: " << path;
+			}
+			else {
+				LOGW << "unknown file type: " << path;
+			}
+		}
 	}
 }

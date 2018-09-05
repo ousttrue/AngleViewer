@@ -18,7 +18,7 @@ void GLES3Renderer::Resize(int w, int h)
 	m_height = h;
 }
 
-void GLES3Renderer::DrawNode(const ICamera *camera, const Node *cameraNode, const Node *node)
+void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode, const agv::scene::Node *node)
 {
 	auto shader = GetOrCreateShader(node);
 	if (!shader) {
@@ -44,7 +44,7 @@ void GLES3Renderer::DrawNode(const ICamera *camera, const Node *cameraNode, cons
 	}
 }
 
-void GLES3Renderer::Draw(Scene *pScene)
+void GLES3Renderer::Draw(agv::scene::Scene *pScene)
 {
 	//
 	// rendertarget
@@ -81,7 +81,7 @@ void GLES3Renderer::Draw(Scene *pScene)
 	}
 }
 
-std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
+std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const agv::scene::Node *pNode)
 {
 	auto found = m_shader_map.find(pNode->GetID());
 	if (found != m_shader_map.end()) {
@@ -98,7 +98,7 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const Node *pNode)
 	return shader;
 }
 
-std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const Node *pNode)
+std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::scene::Node *pNode)
 {
 	auto found = m_vertexbuffer_map.find(pNode->GetID());
 	if (found != m_vertexbuffer_map.end()) {

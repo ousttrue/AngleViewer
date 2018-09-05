@@ -25,7 +25,7 @@ const auto WINDOW_NAME = L"AngleViewer";
 /// globals
 ///
 GLES3Renderer *g_renderer=nullptr;
-Scene *g_scene = nullptr;
+agv::scene::Scene *g_scene = nullptr;
 GUI *g_gui = nullptr;
 
 
@@ -281,7 +281,7 @@ int WINAPI WinMain(
 		to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE))
 	};
 
-	Scene scene(material);
+	agv::scene::Scene scene(material);
 
 	if (__argc == 1) {
 		scene.CreateDefaultScene();

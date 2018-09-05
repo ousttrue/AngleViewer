@@ -18,10 +18,10 @@ class GLES3Renderer
 public:
 	GLES3Renderer();
 	void Resize(int w, int h);
-	void DrawNode(const ICamera *camera, const Node *cameraNode, const Node *node);
-	void Draw(Scene *pScene);
+	void DrawNode(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode, const agv::scene::Node *node);
+	void Draw(agv::scene::Scene *pScene);
 
 private:
-	std::shared_ptr<Shader> GetOrCreateShader(const Node *pNode);
-	std::shared_ptr<VertexArray> GetOrCreateVertexArray(const Node *pNode);
+	std::shared_ptr<Shader> GetOrCreateShader(const agv::scene::Node *pNode);
+	std::shared_ptr<VertexArray> GetOrCreateVertexArray(const agv::scene::Node *pNode);
 };
