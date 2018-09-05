@@ -26,7 +26,7 @@ const auto WINDOW_NAME = L"AngleViewer";
 ///
 GLES3Renderer *g_renderer=nullptr;
 agv::scene::Scene *g_scene = nullptr;
-GUI *g_gui = nullptr;
+agv::gui::GUI *g_gui = nullptr;
 
 
 class MouseCapture
@@ -295,7 +295,7 @@ int WINAPI WinMain(
 	GLES3Renderer renderer;
 	g_renderer = &renderer;
 
-	GUI gui;
+	agv::gui::GUI gui;
 	g_gui = &gui;
 
 	LOGD << "CreateWindow";
