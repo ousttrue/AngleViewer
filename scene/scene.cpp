@@ -118,25 +118,29 @@ namespace agv {
 			}
 
 			ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
-			if (ImGui::BeginMenuBar()) {
-				if (ImGui::BeginMenu("File")) {
-					if (ImGui::MenuItem("Open")) {
-						auto path = OpenDialog();
-						if (!path.empty()) {
+			{
+				if (ImGui::BeginMenuBar()) {
+					if (ImGui::BeginMenu("File")) {
+						if (ImGui::MenuItem("Open")) {
+							auto path = OpenDialog();
+							if (!path.empty()) {
 
-							Load(path);
+								Load(path);
 
+							}
 						}
-					}
 
-					ImGui::EndMenu();
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenuBar();
 				}
-				ImGui::EndMenuBar();
+
+				ImGui::Text("time: %d", now);
+				ImGui::Text("fps: %d", m_fps);
+				ImGui::End();
 			}
 
-			ImGui::Text("time: %d", now);
-			ImGui::Text("fps: %d", m_fps);
-			ImGui::End();
+			ImGui::ShowDemoWindow();
 		}
 
 		class FileSystem
