@@ -18,5 +18,6 @@ TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
     ../plog/include
     ../imgui
     ../json/include
+    ../glTF-SDK/GLTFSDK/Inc
 	)
 
