@@ -24,7 +24,7 @@ const auto WINDOW_NAME = L"AngleViewer";
 ///
 /// globals
 ///
-GLES3Renderer *g_renderer=nullptr;
+agv::renderer::GLES3Renderer *g_renderer=nullptr;
 agv::scene::Scene *g_scene = nullptr;
 agv::gui::GUI *g_gui = nullptr;
 
@@ -292,7 +292,7 @@ int WINAPI WinMain(
 
 	g_scene = &scene;
 
-	GLES3Renderer renderer;
+	agv::renderer::GLES3Renderer renderer;
 	g_renderer = &renderer;
 
 	agv::gui::GUI gui;
