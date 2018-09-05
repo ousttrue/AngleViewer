@@ -9,5 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(rapidjson/include)
 add_subdirectory(glTF-SDK/GLTFSDK)
 
+add_library(RapidJSON dumy.c)
+
 SUBDIRS(scene gui gles3renderer src)
 
