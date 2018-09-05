@@ -302,7 +302,7 @@ static std::wstring SjisToUnicode(const std::string &src)
 	}
 	std::vector<wchar_t> buf(size-1);
 	size = MultiByteToWideChar(CP_OEMCP, 0, src.c_str(), -1, &buf[0], static_cast<int>(buf.size()));
-	return std::wstring(buf.begin(), buf.begin());
+	return std::wstring(buf.begin(), buf.end());
 }
 
 
