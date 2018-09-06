@@ -1,48 +1,10 @@
 #include "scene.h"
+#include "loader.h"
 #include <Windows.h>
 #include <plog/Log.h>
 #include <imgui.h>
 #include <fstream>
-#include <nlohmann/json.hpp>
-
-
-#include <GLTFSDK/Constants.h>
-#include <GLTFSDK/Deserialize.h>
-#include <GLTFSDK/ExtensionsKHR.h>
-#include <GLTFSDK/GLBResourceReader.h>
-#include <GLTFSDK/GLBResourceWriter.h>
-#include <GLTFSDK/MeshPrimitiveUtils.h>
-#include <GLTFSDK/Serialize.h>
-using namespace Microsoft::glTF;
-class StreamReaderWriter : public Microsoft::glTF::IStreamWriter, public Microsoft::glTF::IStreamReader
-{
-public:
-	StreamReaderWriter()
-		: m_streams()
-	{
-	}
-
-	std::shared_ptr<std::ostream> GetOutputStream(const std::string& uri) const override
-	{
-		return GetStream(uri);
-	}
-
-	std::shared_ptr<std::istream> GetInputStream(const std::string& uri) const override
-	{
-		return GetStream(uri);
-	}
-private:
-	std::shared_ptr<std::iostream> GetStream(const std::string& uri) const
-	{
-		if (m_streams.find(uri) == m_streams.end())
-		{
-			m_streams[uri] = std::make_shared<std::stringstream>();
-		}
-		return m_streams[uri];
-	}
-
-	mutable std::unordered_map<std::string, std::shared_ptr<std::stringstream>> m_streams;
-};
+#include <GLTFSDK/Document.h>
 
 
 static std::wstring OpenDialog()
@@ -70,42 +32,6 @@ static std::wstring OpenDialog()
 	}
 
 	return szFile;
-}
-
-static std::vector<uint8_t> ReadAllBytes(const std::wstring &path)
-{
-	std::vector<uint8_t> bytes;
-
-	std::ifstream ifs(path, std::ios::binary | std::ios::ate);
-	if (ifs) {
-		auto pos = ifs.tellg();
-		bytes.resize(static_cast<size_t>(pos));
-
-		ifs.seekg(0, std::ios::beg);
-		ifs.read((char*)bytes.data(), bytes.size());
-
-		ifs.close();
-	}
-
-	return bytes;
-}
-
-static bool HasExt(const std::wstring &path, const std::wstring &ext)
-{
-	if (path.size() < ext.size()) {
-		return false;
-	}
-
-	auto lhs = path.begin() + path.size() - ext.size();
-	auto rhs = ext.begin();
-	for (; lhs != path.end(); ++lhs, ++rhs)
-	{
-		if (tolower(*lhs) != tolower(*rhs)) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 
@@ -179,56 +105,20 @@ namespace agv {
 				ImGui::End();
 			}
 
+			ImGui::Begin("gltf");
+			{
+				if (m_gltf) {
+					ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
+				}
+				ImGui::End();
+			}
+
 			ImGui::ShowDemoWindow();
-		}
-
-		Document ImportAndParseGLB(std::shared_ptr<IStreamReader> streamReader, const std::shared_ptr<std::istream>& glbStream)
-		{
-			GLBResourceReader resourceReader(streamReader, glbStream);
-			auto json = resourceReader.GetJson();
-			auto doc = Deserialize(json);
-			return doc;
-		}
-
-		Document ImportAndParseGLTF(std::shared_ptr<IStreamReader> streamReader, const std::shared_ptr<std::istream>& stream)
-		{
-			GLTFResourceReader resourceReader(streamReader);
-			auto json = std::string(std::istreambuf_iterator<char>(*stream), std::istreambuf_iterator<char>());
-			auto doc = Deserialize(json);
-			return doc;
 		}
 
 		void Scene::Load(const std::wstring &path)
 		{
-			if (HasExt(path, L".gltf")) {
-
-				auto bytes = ReadAllBytes(path);
-
-				auto input = std::make_shared<std::stringstream>(std::string(bytes.begin(), bytes.end()));
-				auto streamWriter = std::make_shared<StreamReaderWriter>();
-
-				auto doc = ImportAndParseGLTF(streamWriter, input);
-
-				int a = 0;
-			}
-			else if (HasExt(path, L".glb")
-				|| HasExt(path, L".vrm")) {
-
-				auto bytes = ReadAllBytes(path);
-
-				//auto input = ReadLocalAsset(resourcePath);
-				auto readwriter = std::make_shared<StreamReaderWriter>();
-				auto input = std::make_shared<std::stringstream>(std::string(bytes.begin(), bytes.end()));
-
-				auto doc = ImportAndParseGLB(readwriter, input);
-
-				int a = 0;
-				//LOGI << bytes.size() << " bytes";
-
-			}
-			else {
-				LOGW << "unknown file type: " << path;
-			}
+			m_gltf = LoadGLTF(path);
 		}
 	}
 }

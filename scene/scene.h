@@ -7,6 +7,12 @@
 #include "material.h"
 
 
+namespace Microsoft {
+	namespace glTF {
+		class Document;
+	}
+}
+
 namespace agv {
 	namespace scene {
 		class Scene
@@ -17,6 +23,8 @@ namespace agv {
 			uint32_t m_fps = 0;
 
 			renderer::Material m_material;
+
+			std::shared_ptr<Microsoft::glTF::Document> m_gltf;
 
 		public:
 			Scene(const renderer::Material &material);
