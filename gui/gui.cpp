@@ -66,7 +66,13 @@ namespace agv {
 		void GUI::MouseWheel(int d)
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			io.MouseWheel += d;
+			if (d < 0) {
+				io.MouseWheel -= 1;
+
+			}
+			else if (d > 0) {
+				io.MouseWheel += 1;
+			}
 		}
 
 		void GUI::SetScreenSize(int w, int h)
