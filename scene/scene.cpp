@@ -109,6 +109,31 @@ namespace agv {
 			{
 				if (m_gltf) {
 					ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
+
+					//ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Once);
+					if (ImGui::TreeNode("nodes")) {
+
+						ImGui::Columns(2);
+						int i = 0;
+						for (auto &node : m_gltf->nodes.Elements())
+						{
+							ImGui::PushID(&node);
+
+							bool isOpen = ImGui::TreeNode("%s", node.name.c_str());
+							ImGui::NextColumn();
+							if (isOpen) {
+								ImGui::Text("%03d", i);
+								ImGui::TreePop();
+							}
+							ImGui::PopID();
+							ImGui::NextColumn();
+
+							++i;
+						}
+						ImGui::Columns(1);
+
+						ImGui::TreePop();
+					}
 				}
 				ImGui::End();
 			}
@@ -119,6 +144,16 @@ namespace agv {
 		void Scene::Load(const std::wstring &path)
 		{
 			m_gltf = LoadGLTF(path);
+			if (!m_gltf)return;
+
+			m_nodes.clear();
+
+			for (auto &node : m_gltf->nodes.Elements()) {
+
+				//LOGD << node.name;
+				//auto node=Node::Create();
+
+			}
 		}
 	}
 }
