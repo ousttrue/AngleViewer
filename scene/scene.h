@@ -7,14 +7,9 @@
 #include "material.h"
 
 
-namespace Microsoft {
-	namespace glTF {
-		class Document;
-	}
-}
-
 namespace agv {
 	namespace scene {
+		class GLTFLoader;
 		class Scene
 		{
 			uint32_t m_time = 0;
@@ -24,7 +19,7 @@ namespace agv {
 
 			renderer::Material m_material;
 
-			std::shared_ptr<Microsoft::glTF::Document> m_gltf;
+			std::shared_ptr<GLTFLoader> m_gltf;
 
 		public:
 			Scene(const renderer::Material &material);

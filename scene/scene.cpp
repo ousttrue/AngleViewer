@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "loader.h"
+#include "node.h"
 #include <Windows.h>
 #include <plog/Log.h>
 #include <imgui.h>
@@ -135,18 +136,19 @@ namespace agv {
 			ImGui::Begin("gltf");
 			{
 				if (m_gltf) {
-					ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
+					//ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
 
 					//ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Once);
 					if (ImGui::TreeNode("nodes")) {
 
 						ImGui::Columns(2);
-						int i = 0;
-						for (auto &node : m_gltf->nodes.Elements())
+						auto nodeCount = m_gltf->NodeGetCount();
+						for(int i = 0; i<nodeCount; ++i)
 						{
-							ImGui::PushID(&node);
+							auto nodeName = m_gltf->NodeGetName(i);
+							ImGui::PushID(nodeName);
 
-							bool isOpen = ImGui::TreeNode("%s", node.name.c_str());
+							bool isOpen = ImGui::TreeNode("%s", nodeName);
 							ImGui::NextColumn();
 							if (isOpen) {
 								ImGui::Text("%03d", i);
@@ -170,18 +172,19 @@ namespace agv {
 
 		void Scene::Load(const std::wstring &path)
 		{
-			m_gltf = LoadGLTF(path);
+			m_gltf = GLTFLoader::Load(path);
 			if (!m_gltf)return;
 
 			m_nodes.clear();
 
-			for (auto &gltfNode : m_gltf->nodes.Elements()) {
+			auto nodeCount = m_gltf->NodeGetCount();
+			for (int i = 0; i < nodeCount; ++i) {
 
 				//LOGD << node.name;
-				auto node = Node::Create(gltfNode.name);
+				auto node = Node::Create(m_gltf->NodeGetName(i));
 
-				if (!gltfNode.meshId.empty()) {
-					auto meshIndex = atoi(gltfNode.meshId.c_str());
+				auto meshIndex = m_gltf->NodeGetMeshIndex(i);
+				if (meshIndex >= 0) {
 					auto mesh = Mesh::CreateFromGltf(m_material, m_gltf, meshIndex);
 					node->SetMesh(mesh);
 				}
@@ -191,14 +194,12 @@ namespace agv {
 			}
 
 			// build tree
-			int i = 0;
-			for (auto &gltfNode : m_gltf->nodes.Elements()) {
+			for (int i = 0; i < nodeCount; ++i) {
 
-				auto &n = m_nodes[i++];
-				for (auto child : gltfNode.children)
+				auto &n = m_nodes[i];
+				for (auto childIndex : m_gltf->NodeGetChildren(i))
 				{
-					auto child_index = atoi(child.c_str());
-					n->AddChild(m_nodes[child_index]);
+					n->AddChild(m_nodes[childIndex]);
 				}
 
 			}

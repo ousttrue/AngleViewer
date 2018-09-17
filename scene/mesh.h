@@ -5,15 +5,9 @@
 #include <glm/glm.hpp>
 
 
-namespace Microsoft {
-	namespace glTF {
-		class Document;
-	}
-}
-
-
 namespace agv {
 	namespace scene {
+		class GLTFLoader;
 		class Mesh
 		{
 		public:
@@ -40,7 +34,7 @@ namespace agv {
 				float size);
 
 			static std::shared_ptr<Mesh> CreateFromGltf(const renderer::Material &material,
-				const std::shared_ptr<Microsoft::glTF::Document> &gltf, int meshIndex);
+				const std::shared_ptr<GLTFLoader> &gltf, int meshIndex);
 
 			const renderer::Material& GetMaterial()const { return m_material; }
 			Topology GetTopology()const { return m_topology; }
