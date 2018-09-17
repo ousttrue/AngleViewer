@@ -2,6 +2,14 @@
 #include <string>
 #include <vector>
 #include "material.h"
+#include <glm/glm.hpp>
+
+
+namespace Microsoft {
+	namespace glTF {
+		class Document;
+	}
+}
 
 
 namespace agv {
@@ -18,24 +26,27 @@ namespace agv {
 		private:
 
 			renderer::Material m_material;
-			Topology m_topology;
-			std::vector<float> m_vertices;
-			std::vector<float> m_colors;
+			Topology m_topology = Topology::Triangles;
+			std::vector<glm::vec3> m_vertices;
+			std::vector<glm::vec3> m_colors;
 
 		public:
-			Mesh(const renderer::Material &material,
-				Topology topology,
-				const std::vector<float> &vertices,
-				const std::vector<float> &colors
-			)
-				: m_material(material), m_topology(topology),
-				m_vertices(vertices), m_colors(colors)
-			{}
+
+			static std::shared_ptr<Mesh> CreateGrid(const renderer::Material &material,
+				float size, int count);
+			static std::shared_ptr<Mesh> CreateAxis(const renderer::Material &material,
+				float size);
+			static std::shared_ptr<Mesh> CreateSampleTriangle(const renderer::Material &material,
+				float size);
+
+			static std::shared_ptr<Mesh> CreateFromGltf(const renderer::Material &material,
+				const std::shared_ptr<Microsoft::glTF::Document> &gltf, int meshIndex);
 
 			const renderer::Material& GetMaterial()const { return m_material; }
 			Topology GetTopology()const { return m_topology; }
-			const std::vector<float> &GetVertices()const { return m_vertices; }
-			const std::vector<float> &GetColors()const { return m_colors; }
+			int GetVertexCount()const { return static_cast<int>(m_vertices.size()); }
+			const float* GetVertices()const { return (const float*)m_vertices.data(); }
+			const float* GetColors()const { return (const float*)m_colors.data(); }
 		};
 	}
 }

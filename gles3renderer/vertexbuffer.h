@@ -14,7 +14,7 @@ namespace agv {
 			VertexBuffer();
 			~VertexBuffer();
 			void Bind();
-			void BufferData(const std::vector<float> &vertices);
+			void BufferData(const float *values, int count);
 		};
 
 
@@ -30,9 +30,12 @@ namespace agv {
 		public:
 			VertexArray(uint32_t topology, int vertexCount);
 			~VertexArray();
-			static std::shared_ptr<VertexArray> Create(uint32_t topology, const std::vector<float> &vertices, const std::vector<float> &colors);
-			static std::shared_ptr<VertexArray> CreateTriangles(const std::vector<float> &vertices, const std::vector<float> &colors);
-			static std::shared_ptr<VertexArray> CreateLines(const std::vector<float> &vertices, const std::vector<float> &colors);
+			static std::shared_ptr<VertexArray> Create(uint32_t topology,
+				int vertexCount,
+				const float *vertices,
+				const float *colors);
+			static std::shared_ptr<VertexArray> CreateTriangles(int vertexCount, const float *vertices, const float *colors);
+			static std::shared_ptr<VertexArray> CreateLines(int vertexCount, const float *vertices, const float *colors);
 
 			void Bind();
 			void AddAttribute(const std::shared_ptr<VertexBuffer> &vbo, int components);

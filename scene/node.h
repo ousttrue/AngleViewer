@@ -19,13 +19,23 @@ namespace agv {
 				: m_unique_id(unique_id)
 			{}
 
+			std::string m_name;
 		public:
-			static std::shared_ptr<Node> Create()
+			static std::shared_ptr<Node> Create(const std::string &name, const std::shared_ptr<Mesh> &mesh)
 			{
 				static uint32_t s_next_unique_id = 1;
-				return std::shared_ptr<Node>(new Node(s_next_unique_id++));
+				auto node = std::shared_ptr<Node>(new Node(s_next_unique_id++));
+				node->m_name = name;
+				node->m_mesh = mesh;
+				return node;
+			}
+
+			static std::shared_ptr<Node> Create(const std::string &name)
+			{
+				return Create(name, nullptr);
 			}
 			uint32_t GetID()const { return m_unique_id; }
+			const std::string &GetName()const { return m_name; }
 
 		public:
 			glm::mat4 transform = glm::identity<glm::mat4>();
@@ -47,10 +57,26 @@ namespace agv {
 				}
 			}
 
+		private:
+			Node* m_parent=nullptr;
+			std::vector<std::shared_ptr<Node>> m_children;
 		public:
-			static std::shared_ptr<Node> CreateGrid(const renderer::Material &material, float size, int count);
-			static std::shared_ptr<Node> CreateAxis(const renderer::Material &material, float size);
-			static std::shared_ptr<Node> CreateSampleTriangle(const renderer::Material &material, float size);
+			Node* GetParent()
+			{
+				return m_parent;
+			}
+
+			std::vector<std::shared_ptr<Node>>& GetChildren()
+			{
+				return m_children;
+			}
+
+			void AddChild(const std::shared_ptr<Node> &child)
+			{
+				assert(!child->m_parent);
+				child->m_parent = this;
+				m_children.push_back(child);
+			}	
 		};
 	}
 }

@@ -26,10 +26,10 @@ namespace agv {
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		}
 
-		void VertexBuffer::BufferData(const std::vector<float> &vertices)
+		void VertexBuffer::BufferData(const float *values, int count)
 		{
 			Bind();
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), values, GL_STATIC_DRAW);
 		}
 
 
@@ -49,33 +49,36 @@ namespace agv {
 			m_vao = 0;
 		}
 
-		std::shared_ptr<VertexArray> VertexArray::Create(uint32_t topology, const std::vector<float> &vertices, const std::vector<float> &colors)
+		std::shared_ptr<VertexArray> VertexArray::Create(uint32_t topology, 
+			int vertexCount,
+			const float *vertices, 
+			const float *colors)
 		{
-			auto vao = std::make_shared<VertexArray>(topology, vertices.size() / 3);
+			auto vao = std::make_shared<VertexArray>(topology, vertexCount/3);
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(vertices);
+				vbo->BufferData(vertices, vertexCount*3);
 				vao->AddAttribute(vbo, 3);
 			}
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(colors);
+				vbo->BufferData(colors, vertexCount * 3);
 				vao->AddAttribute(vbo, 3);
 			}
 
 			return vao;
 		}
 
-		std::shared_ptr<VertexArray> VertexArray::CreateTriangles(const std::vector<float> &vertices, const std::vector<float> &colors)
+		std::shared_ptr<VertexArray> VertexArray::CreateTriangles(int vertexCount, const float *vertices, const float *colors)
 		{
-			return Create(GL_TRIANGLES, vertices, colors);
+			return Create(GL_TRIANGLES, vertexCount, vertices, colors);
 		}
 
-		std::shared_ptr<VertexArray> VertexArray::CreateLines(const std::vector<float> &vertices, const std::vector<float> &colors)
+		std::shared_ptr<VertexArray> VertexArray::CreateLines(int vertexCount, const float *vertices, const float *colors)
 		{
-			return Create(GL_LINES, vertices, colors);
+			return Create(GL_LINES, vertexCount, vertices, colors);
 		}
 
 		void VertexArray::Bind()

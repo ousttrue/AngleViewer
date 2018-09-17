@@ -41,7 +41,7 @@ namespace agv {
 			: m_material(material)
 		{
 			m_camera = std::make_shared<PersepectiveCamera>();
-			m_cameraNode = Node::Create();
+			m_cameraNode = Node::Create("_camera");
 			m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
 
 			Setup();
@@ -53,13 +53,31 @@ namespace agv {
 			const auto grid_count = 5;
 			const auto grid_edge = grid_size * grid_count;
 
-			m_gizmos.push_back(Node::CreateAxis(m_material, grid_edge));
-			m_gizmos.push_back(Node::CreateGrid(m_material, grid_size, grid_count));
+			m_gizmos.push_back(Node::Create("_axis", Mesh::CreateAxis(m_material, grid_edge)));
+			m_gizmos.push_back(Node::Create("_grid", Mesh::CreateGrid(m_material, grid_size, grid_count)));
 		}
 
 		void Scene::CreateDefaultScene()
 		{
-			m_nodes.push_back(Node::CreateSampleTriangle(m_material, 1.0f));
+			auto node = Node::Create("_triangle", Mesh::CreateSampleTriangle(m_material, 1.0f));
+			node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
+			m_nodes.push_back(node);
+		}
+
+		static void DrawNodeRecursive(const std::shared_ptr<Node> &node)
+		{
+			ImGui::PushID(&node);
+			bool isOpen = ImGui::TreeNode("%s", node->GetName().c_str());
+			if (isOpen) {
+
+				for (auto &child : node->GetChildren())
+				{
+					DrawNodeRecursive(child);
+				}
+
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
 		}
 
 		void Scene::Update(uint32_t now)
@@ -102,6 +120,15 @@ namespace agv {
 
 				ImGui::Text("time: %d", now);
 				ImGui::Text("fps: %d", m_fps);
+
+				for (auto &node : m_nodes)
+				{
+					if (!node->GetParent())
+					{
+						DrawNodeRecursive(node);
+					}
+				}
+
 				ImGui::End();
 			}
 
@@ -148,10 +175,31 @@ namespace agv {
 
 			m_nodes.clear();
 
-			for (auto &node : m_gltf->nodes.Elements()) {
+			for (auto &gltfNode : m_gltf->nodes.Elements()) {
 
 				//LOGD << node.name;
-				//auto node=Node::Create();
+				auto node = Node::Create(gltfNode.name);
+
+				if (!gltfNode.meshId.empty()) {
+					auto meshIndex = atoi(gltfNode.meshId.c_str());
+					auto mesh = Mesh::CreateFromGltf(m_material, m_gltf, meshIndex);
+					node->SetMesh(mesh);
+				}
+
+				m_nodes.push_back(node);
+
+			}
+
+			// build tree
+			int i = 0;
+			for (auto &gltfNode : m_gltf->nodes.Elements()) {
+
+				auto &n = m_nodes[i++];
+				for (auto child : gltfNode.children)
+				{
+					auto child_index = atoi(child.c_str());
+					n->AddChild(m_nodes[child_index]);
+				}
 
 			}
 		}
