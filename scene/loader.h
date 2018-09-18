@@ -1,16 +1,15 @@
 #pragma once
 #include <string>
 #include <memory>
-#include <vector>
-#include <glm/glm.hpp>
+#include "bytebuffer.h"
 
 
 namespace agv {
 	namespace scene {
-
-		class GLTFLoaderImpl;
+		struct GLTFLoaderImpl;
 		class GLTFLoader
 		{
+		private:
 			std::unique_ptr<GLTFLoaderImpl> m_impl;
 		public:
 			static std::shared_ptr<GLTFLoader> Load(const std::wstring &path);
@@ -21,7 +20,8 @@ namespace agv {
 			std::vector<int> NodeGetChildren(int index)const;
 
 			int MeshGetPrimitiveCount(int index)const;
-			std::vector<float> MeshReadPrimitiveAttribute(int index, int primitiveIndex, const std::string &attribute);
+			ByteBuffer MeshReadPrimitiveAttribute(int index, int primitiveIndex, const std::string &attribute);
+			ByteBuffer MeshReadPrimitiveIndex(int index, int primitiveIndex);
 		};
 	}
 }

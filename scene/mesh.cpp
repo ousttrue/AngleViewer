@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "loader.h"
 #include <plog/Log.h>
+#include <glm/glm.hpp>
 
 
 namespace agv {
@@ -34,8 +35,8 @@ namespace agv {
 			auto mesh = std::make_shared<Mesh>();
 			mesh->m_material = material;
 			mesh->m_topology = Mesh::Lines;
-			mesh->m_vertices = vertices;
-			mesh->m_colors = colors;
+			mesh->m_vertices = ByteBuffer(vertices);
+			mesh->m_colors = ByteBuffer(colors);
 			return mesh;
 		}
 
@@ -117,15 +118,15 @@ namespace agv {
 			auto primitiveCount = gltf->MeshGetPrimitiveCount(meshIndex);
 			for (int i = 0; i < primitiveCount; ++i)
 			{
-				auto values= gltf->MeshReadPrimitiveAttribute(meshIndex, i, "POSITION");
-				if (!values.empty()) {
-					mesh->m_vertices.assign((glm::vec3*)values.data(), (glm::vec3*)(values.data() + values.size()));
-				}
-				//mesh->m_colors = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "COLOR_0");
-				if (mesh->m_colors.size() != mesh->m_vertices.size())
+				mesh->m_vertices = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "POSITION");
+				mesh->m_colors = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "COLOR_0");
+				if (mesh->m_colors.GetValueCount() != mesh->m_vertices.GetValueCount())
 				{
-					mesh->m_colors.resize(mesh->m_vertices.size(), glm::vec3(1.0f));
+					std::vector<glm::vec3> colors(mesh->m_vertices.GetValueCount(), glm::vec3(1.0f));
+					mesh->m_colors = ByteBuffer(colors);
 				}
+
+				mesh->m_indices = gltf->MeshReadPrimitiveIndex(meshIndex, i);
 
 				return mesh;
 			}

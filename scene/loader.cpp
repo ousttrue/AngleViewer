@@ -137,10 +137,46 @@ namespace agv {
 			{
 			}
 
-			template<typename T>
-			std::vector<T> Read(const Microsoft::glTF::Accessor &accessor)
+			ByteBuffer Read(const Microsoft::glTF::Accessor &accessor)const
 			{
-				return m_reader->ReadBinaryData<T>(*m_document, accessor);
+				switch (accessor.componentType)
+				{
+				case Microsoft::glTF::COMPONENT_UNSIGNED_SHORT:
+				{
+					auto data = m_reader->ReadBinaryData<uint16_t>(*m_document, accessor);
+					return ByteBuffer(data);
+				}
+
+				case Microsoft::glTF::COMPONENT_UNSIGNED_INT:
+				{
+					auto data = m_reader->ReadBinaryData<uint32_t>(*m_document, accessor);
+					return ByteBuffer(data);
+				}
+
+				case Microsoft::glTF::COMPONENT_FLOAT:
+				{
+					switch (accessor.type)
+					{
+					case Microsoft::glTF::TYPE_VEC3:
+					{
+						auto data = m_reader->ReadBinaryData<float>(*m_document, accessor);
+						return ByteBuffer(data, ValueType::Float3);
+					}
+
+					default:
+						assert(false);
+						return ByteBuffer();
+					}
+				
+				}
+
+				case Microsoft::glTF::COMPONENT_BYTE:
+				case Microsoft::glTF::COMPONENT_UNSIGNED_BYTE:
+				case Microsoft::glTF::COMPONENT_SHORT:
+				default:
+					assert(false); // notimplmented
+					return ByteBuffer();
+				}			
 			}
 		};
 
@@ -148,13 +184,13 @@ namespace agv {
 		{
 			fs::path path(_path);
 			auto ext = path.extension().wstring();
-			if (ext==L".gltf") {
+			if (ext == L".gltf") {
 
 				auto bytes = ReadAllBytes(path.wstring());
 				auto input = std::make_shared<std::stringstream>(std::string(bytes.begin(), bytes.end()));
 
 				auto stream = std::make_shared<StreamReader>(path.parent_path());
-				auto resourceReader=std::make_shared<Microsoft::glTF::GLTFResourceReader>(stream);
+				auto resourceReader = std::make_shared<Microsoft::glTF::GLTFResourceReader>(stream);
 
 				auto p = std::make_shared<Microsoft::glTF::Document>();
 				*p = ImportAndParseGLTF(input);
@@ -164,8 +200,8 @@ namespace agv {
 				return loader;
 
 			}
-			else if (ext==L".glb"
-				|| ext==L".vrm") {
+			else if (ext == L".glb"
+				|| ext == L".vrm") {
 
 				auto bytes = ReadAllBytes(path.wstring());
 
@@ -195,7 +231,7 @@ namespace agv {
 
 		int GLTFLoader::NodeGetCount()const
 		{
-			return m_impl->m_document->nodes.Size();
+			return static_cast<int>(m_impl->m_document->nodes.Size());
 		}
 
 		const char* GLTFLoader::NodeGetName(int index)const
@@ -220,20 +256,29 @@ namespace agv {
 
 		int GLTFLoader::MeshGetPrimitiveCount(int index)const
 		{
-			return m_impl->m_document->meshes[index].primitives.size();
+			return static_cast<int>(m_impl->m_document->meshes[index].primitives.size());
 		}
 
-		std::vector<float> GLTFLoader::MeshReadPrimitiveAttribute(int index, int primitiveIndex, const std::string &attribute)
+		ByteBuffer GLTFLoader::MeshReadPrimitiveAttribute(int index, int primitiveIndex, const std::string &attribute)
 		{
 			auto &mesh = m_impl->m_document->meshes[index];
 			auto &prim = mesh.primitives[primitiveIndex];
 			auto found = prim.attributes.find(attribute);
 			if (found == prim.attributes.end()) {
-				return std::vector<float>();
+				return ByteBuffer();
 			}
 			auto accessorIndex = atoi(found->second.c_str());
 			auto &accessor = m_impl->m_document->accessors[accessorIndex];
-			return m_impl->Read<float>(accessor);
+			return m_impl->Read(accessor);
+		}
+
+		ByteBuffer GLTFLoader::MeshReadPrimitiveIndex(int index, int primitiveIndex)
+		{
+			auto &mesh = m_impl->m_document->meshes[index];
+			auto &prim = mesh.primitives[primitiveIndex];
+			auto accessorIndex = atoi(prim.indicesAccessorId.c_str());
+			auto &accessor = m_impl->m_document->accessors[accessorIndex];
+			return m_impl->Read(accessor);
 		}
 	}
 }

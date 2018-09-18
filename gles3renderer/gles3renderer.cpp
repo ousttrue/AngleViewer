@@ -117,13 +117,17 @@ namespace agv {
 			{
 			case scene::Mesh::Triangles:
 			{
-				vbo = VertexArray::CreateTriangles(mesh->GetVertexCount(), mesh->GetVertices(), mesh->GetColors());
+				vbo = VertexArray::CreateTriangles(mesh->GetVertices().GetValueCount(),
+					(float*)mesh->GetVertices().Bytes.data(),
+					(float*)mesh->GetColors().Bytes.data());
 				break;
 			}
 
 			case scene::Mesh::Lines:
 			{
-				vbo = VertexArray::CreateLines(mesh->GetVertexCount(), mesh->GetVertices(), mesh->GetColors());
+				vbo = VertexArray::CreateLines(mesh->GetVertices().GetValueCount(),
+					(float*)mesh->GetVertices().Bytes.data(),
+					(float*)mesh->GetColors().Bytes.data());
 				break;
 			}
 			}

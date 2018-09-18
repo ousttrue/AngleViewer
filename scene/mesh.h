@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "material.h"
-#include <glm/glm.hpp>
+#include "bytebuffer.h"
 
 
 namespace agv {
@@ -21,8 +21,9 @@ namespace agv {
 
 			renderer::Material m_material;
 			Topology m_topology = Topology::Triangles;
-			std::vector<glm::vec3> m_vertices;
-			std::vector<glm::vec3> m_colors;
+			ByteBuffer m_vertices;
+			ByteBuffer m_colors;
+			ByteBuffer m_indices;
 
 		public:
 
@@ -38,9 +39,9 @@ namespace agv {
 
 			const renderer::Material& GetMaterial()const { return m_material; }
 			Topology GetTopology()const { return m_topology; }
-			int GetVertexCount()const { return static_cast<int>(m_vertices.size()); }
-			const float* GetVertices()const { return (const float*)m_vertices.data(); }
-			const float* GetColors()const { return (const float*)m_colors.data(); }
+			const ByteBuffer& GetVertices()const { return m_vertices; }
+			const ByteBuffer& GetColors()const { return m_colors; }
+			const ByteBuffer& GetIndices()const { return m_indices; }
 		};
 	}
 }
