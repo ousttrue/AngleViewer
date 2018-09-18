@@ -167,7 +167,7 @@ namespace agv {
 				ImGui::End();
 			}
 
-			ImGui::ShowDemoWindow();
+			//ImGui::ShowDemoWindow();
 		}
 
 		void Scene::Load(const std::wstring &path)
