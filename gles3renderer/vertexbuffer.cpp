@@ -23,15 +23,39 @@ namespace agv {
 
 		void VertexBuffer::Bind()
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			if (m_isIndex) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo);
+			}
+			else {
+				glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			}
 		}
 
-		void VertexBuffer::BufferData(const float *values, int count)
+		void VertexBuffer::Unbind()
 		{
-			Bind();
-			glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), values, GL_STATIC_DRAW);
+			if (m_isIndex) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			}
+			else {
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
 		}
 
+		void VertexBuffer::BufferData(bool isIndex, const uint8_t *values, int byteSize)
+		{
+			m_isIndex = isIndex;
+
+			Bind();
+			{
+				if (m_isIndex) {
+					glBufferData(GL_ELEMENT_ARRAY_BUFFER, byteSize, values, GL_STATIC_DRAW);
+				}
+				else {
+					glBufferData(GL_ARRAY_BUFFER, byteSize, values, GL_STATIC_DRAW);
+				}
+				Unbind();
+			}
+		}
 
 		///
 		/// VertexArray
@@ -49,22 +73,22 @@ namespace agv {
 			m_vao = 0;
 		}
 
-		std::shared_ptr<VertexArray> VertexArray::Create(uint32_t topology, 
+		std::shared_ptr<VertexArray> VertexArray::Create(uint32_t topology,
 			int vertexCount,
-			const float *vertices, 
+			const float *vertices,
 			const float *colors)
 		{
-			auto vao = std::make_shared<VertexArray>(topology, vertexCount/3);
+			auto vao = std::make_shared<VertexArray>(topology, vertexCount);
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(vertices, vertexCount*3);
+				vbo->BufferData(false, (uint8_t*)vertices, vertexCount * 3 * 4);
 				vao->AddAttribute(vbo, 3);
 			}
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(colors, vertexCount * 3);
+				vbo->BufferData(false, (uint8_t*)colors, vertexCount * 3 * 4);
 				vao->AddAttribute(vbo, 3);
 			}
 
@@ -86,21 +110,52 @@ namespace agv {
 			glBindVertexArray(m_vao);
 		}
 
+		void VertexArray::Unbind()
+		{
+			glBindVertexArray(0);
+		}
+
 		void VertexArray::AddAttribute(const std::shared_ptr<VertexBuffer> &vbo, int components)
 		{
-			Bind();
 			auto attribute = static_cast<GLuint>(m_attributes.size());
 			m_attributes.push_back(vbo);
 
-			glEnableVertexAttribArray(attribute);
-			vbo->Bind();
-			glVertexAttribPointer(attribute, components, GL_FLOAT, GL_FALSE, 0, nullptr);
+			Bind();
+			{
+				vbo->Bind();
+				glEnableVertexAttribArray(attribute);
+				glVertexAttribPointer(attribute, components, GL_FLOAT, GL_FALSE, 0, nullptr);
+				Unbind();
+			}
+
+			glDisableVertexAttribArray(attribute);
+			vbo->Unbind();
+		}
+
+		void VertexArray::SetIndex(const std::shared_ptr<VertexBuffer> &vbo, int indexCount, uint32_t indexType)
+		{
+			m_indices = vbo;
+			m_indexCount = indexCount;
+			m_indexType = indexType;
+
+			Bind();
+			{
+				vbo->Bind();
+				Unbind();
+			}
+			vbo->Unbind();
 		}
 
 		void VertexArray::Draw()
 		{
 			Bind();
-			glDrawArrays(m_topology, 0, m_vertexCount);
+
+			if (m_indices) {
+				glDrawElements(m_topology, m_indexCount, m_indexType, 0);
+			}
+			else {
+				glDrawArrays(m_topology, 0, m_vertexCount);
+			}
 		}
 	}
 }

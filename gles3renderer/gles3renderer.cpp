@@ -111,13 +111,13 @@ namespace agv {
 			if (!mesh)return nullptr;
 
 
-			std::shared_ptr<VertexArray> vbo;
+			std::shared_ptr<VertexArray> vao;
 
 			switch (mesh->GetTopology())
 			{
 			case scene::Mesh::Triangles:
 			{
-				vbo = VertexArray::CreateTriangles(mesh->GetVertices().GetValueCount(),
+				vao = VertexArray::CreateTriangles(mesh->GetVertices().GetValueCount(),
 					(float*)mesh->GetVertices().Bytes.data(),
 					(float*)mesh->GetColors().Bytes.data());
 				break;
@@ -125,20 +125,36 @@ namespace agv {
 
 			case scene::Mesh::Lines:
 			{
-				vbo = VertexArray::CreateLines(mesh->GetVertices().GetValueCount(),
+				vao = VertexArray::CreateLines(mesh->GetVertices().GetValueCount(),
 					(float*)mesh->GetVertices().Bytes.data(),
 					(float*)mesh->GetColors().Bytes.data());
 				break;
 			}
 			}
 
-			if (vbo) {
-				m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vbo));
+			if (vao) {
+				auto &indices = mesh->GetIndices();
+				if (!indices.Bytes.empty()) {
+					auto ibo = std::make_shared<VertexBuffer>();
+					ibo->BufferData(true, indices.Bytes.data(), indices.Bytes.size());
+					switch (indices.ValueType)
+					{
+					case scene::ValueType::UInt16:
+						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_SHORT);
+						break;
+
+					case scene::ValueType::UInt32:
+						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_INT);
+						break;
+					}
+				}
+
+				m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vao));
 			}
 			else {
 				LOGE << "fal to create triangles";
 			}
-			return vbo;
+			return vao;
 		}
 	}
 }

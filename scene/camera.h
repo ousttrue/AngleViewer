@@ -17,7 +17,7 @@ namespace agv {
 		{
 			float m_fovyDegree = 30.0f;
 			float m_aspect = 1.0f;
-			float m_near = 1.0f;
+			float m_near = 0.05f;
 			float m_far = 100.0f;
 
 		public:
