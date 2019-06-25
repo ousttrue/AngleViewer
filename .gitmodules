@@ -10,9 +10,6 @@
 [submodule "json"]
 	path = json
 	url = https://github.com/nlohmann/json.git
-[submodule "glTF-SDK"]
-	path = glTF-SDK
-	url = https://github.com/Microsoft/glTF-SDK.git
 [submodule "rapidjson"]
 	path = rapidjson
 	url = https://github.com/fergsatwork/rapidjson.git
