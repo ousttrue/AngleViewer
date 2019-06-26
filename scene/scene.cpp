@@ -5,7 +5,6 @@
 #include <plog/Log.h>
 #include <imgui.h>
 #include <fstream>
-#include <GLTFSDK/Document.h>
 
 
 static std::wstring OpenDialog()
@@ -41,7 +40,7 @@ namespace agv {
 		Scene::Scene(const renderer::Material &material)
 			: m_material(material)
 		{
-			m_camera = std::make_shared<PersepectiveCamera>();
+			m_camera = std::make_shared<PerspectiveCamera>();
 			m_cameraNode = Node::Create("_camera");
 			m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
 

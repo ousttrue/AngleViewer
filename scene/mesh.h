@@ -4,7 +4,7 @@
 #include <memory>
 #include "material.h"
 #include "bytebuffer.h"
-
+#include <simplegltf/simplegltf.h>
 
 namespace agv {
 	namespace scene {

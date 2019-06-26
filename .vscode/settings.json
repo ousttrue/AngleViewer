@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "fovy",
+        "lpstr",
+        "nlohmann",
+        "simplegltf"
+    ],
+    "files.associations": {
+        "optional": "cpp",
+        "vector": "cpp"
+    }
+}

@@ -118,15 +118,15 @@ namespace agv {
 			auto primitiveCount = gltf->MeshGetPrimitiveCount(meshIndex);
 			for (int i = 0; i < primitiveCount; ++i)
 			{
-				mesh->m_vertices = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "POSITION");
-				mesh->m_colors = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "COLOR_0");
+				mesh->m_vertices.assign(gltf->MeshReadPrimitiveAttribute(meshIndex, i, "POSITION"));
+				mesh->m_colors.assign(gltf->MeshReadPrimitiveAttribute(meshIndex, i, "COLOR_0"));
 				if (mesh->m_colors.GetValueCount() != mesh->m_vertices.GetValueCount())
 				{
 					std::vector<glm::vec3> colors(mesh->m_vertices.GetValueCount(), glm::vec3(1.0f));
 					mesh->m_colors = ByteBuffer(colors);
 				}
 
-				mesh->m_indices = gltf->MeshReadPrimitiveIndex(meshIndex, i);
+				mesh->m_indices.assign(gltf->MeshReadPrimitiveIndex(meshIndex, i));
 
 				return mesh;
 			}

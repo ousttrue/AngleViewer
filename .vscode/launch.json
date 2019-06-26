@@ -12,7 +12,10 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
+            "environment": [
+                {"name": "PATH", "value": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"}
+
+            ],
             "externalConsole": true
         }
     ]

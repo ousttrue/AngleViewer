@@ -139,11 +139,11 @@ namespace agv {
 					ibo->BufferData(true, indices.Bytes.data(), indices.Bytes.size());
 					switch (indices.ValueType)
 					{
-					case scene::ValueType::UInt16:
+					case simplegltf::ValueType::UInt16:
 						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_SHORT);
 						break;
 
-					case scene::ValueType::UInt32:
+					case simplegltf::ValueType::UInt32:
 						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_INT);
 						break;
 					}

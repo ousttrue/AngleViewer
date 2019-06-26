@@ -13,7 +13,7 @@ namespace agv {
 		};
 
 
-		class PersepectiveCamera : public ICamera
+		class PerspectiveCamera : public ICamera
 		{
 			float m_fovyDegree = 30.0f;
 			float m_aspect = 1.0f;
@@ -21,7 +21,7 @@ namespace agv {
 			float m_far = 100.0f;
 
 		public:
-			PersepectiveCamera()
+			PerspectiveCamera()
 			{
 			}
 

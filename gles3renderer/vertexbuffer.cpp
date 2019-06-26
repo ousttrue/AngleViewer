@@ -41,7 +41,7 @@ namespace agv {
 			}
 		}
 
-		void VertexBuffer::BufferData(bool isIndex, const uint8_t *values, int byteSize)
+		void VertexBuffer::BufferData(bool isIndex, const std::byte *values, size_t byteSize)
 		{
 			m_isIndex = isIndex;
 
@@ -82,13 +82,13 @@ namespace agv {
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(false, (uint8_t*)vertices, vertexCount * 3 * 4);
+				vbo->BufferData(false, (std::byte*)vertices, vertexCount * 3 * 4);
 				vao->AddAttribute(vbo, 3);
 			}
 
 			{
 				auto vbo = std::make_shared<VertexBuffer>();
-				vbo->BufferData(false, (uint8_t*)colors, vertexCount * 3 * 4);
+				vbo->BufferData(false, (std::byte*)colors, vertexCount * 3 * 4);
 				vao->AddAttribute(vbo, 3);
 			}
 

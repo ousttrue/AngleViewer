@@ -14,10 +14,9 @@ TARGET_COMPILE_DEFINITIONS(${SUB_NAME} PUBLIC
 	)
 
 TARGET_INCLUDE_DIRECTORIES(${SUB_NAME} PUBLIC
-    ../glm
-    ../plog/include
-    ../imgui
-    ../json/include
-    ../glTF-SDK/GLTFSDK/Inc
+    ${CMAKE_CURRENT_LIST_DIR}/../glm
+    ${CMAKE_CURRENT_LIST_DIR}/../plog/include
+    ${CMAKE_CURRENT_LIST_DIR}/../imgui
+	${CMAKE_CURRENT_LIST_DIR}/../json/include
+	${CMAKE_CURRENT_LIST_DIR}/../simplegltf
 	)
-

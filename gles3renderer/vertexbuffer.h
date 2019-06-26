@@ -16,7 +16,7 @@ namespace agv {
 			~VertexBuffer();
 			void Bind();
 			void Unbind();
-			void BufferData(bool isIndex, const uint8_t *values, int byteSize);
+			void BufferData(bool isIndex, const std::byte *values, size_t byteSize);
 		};
 
 
