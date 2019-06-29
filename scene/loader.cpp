@@ -103,7 +103,7 @@ simplegltf::View GLTFLoader::MeshReadPrimitiveAttribute(int index, int primitive
         return simplegltf::View();
     }
     auto &accessor = m_impl->gltf.accessors[found->second];
-    return m_impl->get_range(accessor);
+    return m_impl->get_from_accessor(accessor);
 }
 
 simplegltf::View GLTFLoader::MeshReadPrimitiveIndex(int index, int primitiveIndex)
@@ -111,7 +111,7 @@ simplegltf::View GLTFLoader::MeshReadPrimitiveIndex(int index, int primitiveInde
     auto &mesh = m_impl->gltf.meshes[index];
     auto &prim = mesh.primitives[primitiveIndex];
     auto &accessor = m_impl->gltf.accessors[prim.indices];
-    return m_impl->get_range(accessor);
+    return m_impl->get_from_accessor(accessor);
 }
 } // namespace scene
 } // namespace agv
