@@ -6,6 +6,7 @@ set(CMAKE_INSTALL_PREFIX $ENV{VCPKG_DIR}/installed/x64-windows)
 add_definitions(-DNOMINMAX)
 INCLUDE_DIRECTORIES(
     simplegltf
+    $ENV{VCPKG_DIR}/installed/x64-windows/include
 )
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/glTF-SDK/Build/CMake/Modules")
 set(CMAKE_GENERATOR_PLATFORM x64)
