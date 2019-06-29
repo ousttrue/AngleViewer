@@ -1,9 +1,6 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "rapidjson"]
-	path = rapidjson
-	url = https://github.com/fergsatwork/rapidjson.git
 [submodule "simplegltf"]
 	path = simplegltf
 	url = https://github.com/ousttrue/simplegltf.git
