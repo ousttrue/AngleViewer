@@ -19,8 +19,9 @@ public:
         Lines,
     };
 
-private:
     renderer::Material m_material;
+private:
+
     Topology m_topology = Topology::Triangles;
 
 public:
@@ -45,9 +46,6 @@ public:
                                             float size);
     static std::shared_ptr<Mesh> CreateSampleTriangle(const renderer::Material &material,
                                                       float size);
-
-    static std::shared_ptr<Mesh> CreateFromGltf(const renderer::Material &material,
-                                                simplegltf::Storage &gltf, int meshIndex);
 
     const renderer::Material &GetMaterial() const { return m_material; }
     Topology GetTopology() const { return m_topology; }

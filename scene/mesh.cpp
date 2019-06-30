@@ -114,32 +114,5 @@ std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(const renderer::Material &mater
     return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::CreateFromGltf(const renderer::Material &material,
-                                           simplegltf::Storage &storage, int meshIndex)
-{
-    auto mesh = std::make_shared<Mesh>();
-    mesh->m_material = material;
-
-    auto &gltfMesh = storage.gltf.meshes[meshIndex];
-    for (int i = 0; i < gltfMesh.primitives.size(); ++i)
-    {
-        auto &primitive = gltfMesh.primitives[i];
-        for (auto pair : primitive.attributes)
-        {
-            if (pair.first != "POSITION")
-            {
-                continue;
-            }
-            mesh->AddVertexAttribute(pair.first, storage.get_from_accessor(pair.second));
-        }
-        mesh->Indices = storage.get_from_accessor(primitive.indices);
-
-        // ToDo
-        break;
-    }
-
-    return mesh;
-}
-
 } // namespace scene
 } // namespace agv

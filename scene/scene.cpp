@@ -189,24 +189,42 @@ void Scene::Load(const std::wstring &path)
     LOGI << "load: " << path;
     auto &gltf = m_storage.gltf;
 
+    for(auto &gltfMaterial : gltf.materials)
+    {
+
+    }
+
     for (auto &gltfNode : gltf.nodes)
     {
-        //LOGD << node.name;
+        LOGD << gltfNode.name;
         auto node = Node::Create(gltfNode.name);
 
         if (gltfNode.mesh >= 0)
         {
-            auto mesh = Mesh::CreateFromGltf(m_material, m_storage, gltfNode.mesh);
-            node->SetMesh(mesh);
+            auto &gltfMesh = m_storage.gltf.meshes[gltfNode.mesh];
+            for (int i = 0; i < gltfMesh.primitives.size(); ++i)
+            {
+                auto mesh = std::make_shared<Mesh>();
+                mesh->m_material = m_material;
+
+                auto &primitive = gltfMesh.primitives[i];
+                for (auto pair : primitive.attributes)
+                {
+                    mesh->AddVertexAttribute(pair.first, m_storage.get_from_accessor(pair.second));
+                }
+                mesh->Indices = m_storage.get_from_accessor(primitive.indices);
+
+                node->SetMesh(mesh);
+            }
         }
 
         m_nodes.push_back(node);
     }
 
     // build tree
-    for (int i=0; i< gltf.nodes.size(); ++i)
+    for (int i = 0; i < gltf.nodes.size(); ++i)
     {
-		auto &n = m_nodes[i];
+        auto &n = m_nodes[i];
         for (auto childIndex : gltf.nodes[i].children)
         {
             n->AddChild(m_nodes[childIndex]);

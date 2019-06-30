@@ -69,14 +69,14 @@ void GLES3Renderer::Draw(agv::scene::Scene *pScene)
     //
     if (pScene)
     {
-        // {
-        //     auto count = pScene->GetGizmosCount();
-        //     for (int i = 0; i < count; ++i)
-        //     {
-        //         auto node = pScene->GetGizmos(i);
-        //         DrawNode(camera, cameraNode, node);
-        //     }
-        // }
+        {
+            auto count = pScene->GetGizmosCount();
+            for (int i = 0; i < count; ++i)
+            {
+                auto node = pScene->GetGizmos(i);
+                DrawNode(camera, cameraNode, node);
+            }
+        }
 
         {
             auto count = pScene->GetNodeCount();
@@ -131,10 +131,12 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
     {
         vao = std::make_shared<VertexArray>(mesh->GetVertexCount());
         vao->Bind();
-        for (auto pair : mesh->VertexAttributes)
-        {
-            vao->AddAttribute(pair.first, pair.second);
-        }
+        auto found = mesh->VertexAttributes.find("POSITION");
+        vao->AddAttribute(found->first, found->second);
+        // for (auto pair : mesh->VertexAttributes)
+        // {
+        //     vao->AddAttribute(pair.first, pair.second);
+        // }
         break;
     }
 
@@ -142,10 +144,12 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
     {
         vao = std::make_shared<VertexArray>(mesh->GetVertexCount(), simplegltf::GltfTopologyType::LINES);
         vao->Bind();
-        for (auto pair : mesh->VertexAttributes)
-        {
-            vao->AddAttribute(pair.first, pair.second);
-        }
+        auto found = mesh->VertexAttributes.find("POSITION");
+        vao->AddAttribute(found->first, found->second);
+        // for (auto pair : mesh->VertexAttributes)
+        // {
+        //     vao->AddAttribute(pair.first, pair.second);
+        // }
         break;
     }
     }
