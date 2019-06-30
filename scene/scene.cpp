@@ -54,12 +54,14 @@ void Scene::Setup()
 
     {
         auto axis = std::make_shared<Node>("_axis");
-        axis->Mesh = Mesh::CreateAxis(m_material, grid_edge);
+        axis->Mesh = Mesh::CreateAxis(grid_edge);
+        axis->Mesh->WholeSubmesh(m_material);
         m_gizmos.push_back(axis);
     }
     {
         auto grid = std::make_shared<Node>("_grid");
-        grid->Mesh = Mesh::CreateGrid(m_material, grid_size, grid_count);
+        grid->Mesh = Mesh::CreateGrid(grid_size, grid_count);
+        grid->Mesh->WholeSubmesh(m_material);
         m_gizmos.push_back(grid);
     }
 }
@@ -67,7 +69,8 @@ void Scene::Setup()
 void Scene::CreateDefaultScene()
 {
     auto node = std::make_shared<Node>("_triangle");
-    node->Mesh = Mesh::CreateSampleTriangle(m_material, 1.0f);
+    node->Mesh = Mesh::CreateSampleTriangle(1.0f);
+    node->Mesh->WholeSubmesh(m_material);
     node->Animation = std::make_shared<NodeRotation>(50.0f);
     m_nodes.push_back(node);
 }
@@ -216,7 +219,6 @@ void Scene::Load(const std::wstring &path)
             for (int i = 0; i < gltfMesh.primitives.size(); ++i)
             {
                 auto mesh = std::make_shared<Mesh>(gltfMesh.name);
-                mesh->Material = m_material;
 
                 auto &primitive = gltfMesh.primitives[i];
                 for (auto pair : primitive.attributes)
@@ -224,6 +226,8 @@ void Scene::Load(const std::wstring &path)
                     mesh->AddVertexAttribute(pair.first, m_storage.get_from_accessor(pair.second));
                 }
                 mesh->Indices = m_storage.get_from_accessor(primitive.indices);
+
+                mesh->WholeSubmesh(m_material);
 
                 node->Mesh = mesh;
             }

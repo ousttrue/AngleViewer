@@ -12,7 +12,24 @@ namespace agv
 namespace scene
 {
 
-class Mesh : ObjectBase
+class Submesh : public ObjectBase
+{
+    std::shared_ptr<Material> m_material;
+    int m_drawCount;
+
+public:
+    Submesh(const std::string &name,
+            int drawCount,
+            const std::shared_ptr<Material> &material)
+        : ObjectBase(name), m_drawCount(drawCount), m_material(material)
+    {
+    }
+
+    const std::shared_ptr<Material> &GetMaterial() const { return m_material; }
+    int GetDrawCount() const { return m_drawCount; }
+};
+
+class Mesh : public ObjectBase
 {
 public:
     Mesh(const std::string &name) : ObjectBase(name)
@@ -21,31 +38,29 @@ public:
 
     simplegltf::GltfTopologyType Topology = simplegltf::GltfTopologyType::TRIANGLES;
 
-    std::shared_ptr<scene::Material> Material;
+    std::vector<std::shared_ptr<Submesh>> Submeshes;
+    void WholeSubmesh(const std::shared_ptr<Material> &material);
 
     std::unordered_map<std::string, simplegltf::View> VertexAttributes;
     void AddVertexAttribute(const std::string &semantic, simplegltf::View view)
     {
         VertexAttributes.insert(std::make_pair(semantic, view));
     }
-    size_t GetVertexCount() const
+    int GetVertexCount() const
     {
         auto found = VertexAttributes.find("POSITION");
         if (found == VertexAttributes.end())
         {
             return 0;
         }
-        return found->second.get_count();
+        return static_cast<int>(found->second.get_count());
     }
 
     simplegltf::View Indices;
 
-    static std::shared_ptr<Mesh> CreateGrid(const std::shared_ptr<scene::Material> &material,
-                                            float size, int count);
-    static std::shared_ptr<Mesh> CreateAxis(const std::shared_ptr<scene::Material> &material,
-                                            float size);
-    static std::shared_ptr<Mesh> CreateSampleTriangle(const std::shared_ptr<scene::Material> &material,
-                                                      float size);
+    static std::shared_ptr<Mesh> CreateGrid(float size, int count);
+    static std::shared_ptr<Mesh> CreateAxis(float size);
+    static std::shared_ptr<Mesh> CreateSampleTriangle(float size);
 };
 } // namespace scene
 } // namespace agv

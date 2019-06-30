@@ -2,6 +2,7 @@
     "cSpell.words": [
         "ERASEBKGND",
         "GLES",
+        "GLEXT",
         "LBUTTONDOWN",
         "LBUTTONUP",
         "LOGD",
@@ -35,6 +36,7 @@
         "xhash": "cpp",
         "xstring": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "memory": "cpp"
     }
 }

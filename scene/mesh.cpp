@@ -6,7 +6,14 @@ namespace agv
 {
 namespace scene
 {
-std::shared_ptr<Mesh> Mesh::CreateGrid(const std::shared_ptr<scene::Material> &material, float grid_size, int grid_count)
+void Mesh::WholeSubmesh(const std::shared_ptr<Material> &material)
+{
+    int drawCount = Indices.data ? Indices.get_count() : VertexAttributes["POSITION"].get_count();
+    auto submesh = std::make_shared<Submesh>(GetName() + "#whole", drawCount, material);
+    Submeshes.push_back(submesh);
+}
+
+std::shared_ptr<Mesh> Mesh::CreateGrid(float grid_size, int grid_count)
 {
     auto grid_edge = grid_size * grid_count;
     auto vertices = std::make_shared<simplegltf::Buffer>();
@@ -35,14 +42,13 @@ std::shared_ptr<Mesh> Mesh::CreateGrid(const std::shared_ptr<scene::Material> &m
     }
 
     auto mesh = std::make_shared<Mesh>("grid");
-    mesh->Material = material;
     mesh->Topology = simplegltf::GltfTopologyType::LINES;
     mesh->AddVertexAttribute("POSITION", simplegltf::View(vertices, simplegltf::ValueType::FloatVec3));
     mesh->AddVertexAttribute("COLOR_0", simplegltf::View(colors, simplegltf::ValueType::FloatVec3));
     return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::CreateAxis(const std::shared_ptr<scene::Material> &material, float grid_edge)
+std::shared_ptr<Mesh> Mesh::CreateAxis(float grid_edge)
 {
     glm::vec3 vertices[] = {
         // x
@@ -84,7 +90,6 @@ std::shared_ptr<Mesh> Mesh::CreateAxis(const std::shared_ptr<scene::Material> &m
     };
 
     auto mesh = std::make_shared<Mesh>("axis");
-    mesh->Material = material;
     mesh->Topology = simplegltf::GltfTopologyType::LINES;
 
     mesh->AddVertexAttribute("POSITION", simplegltf::View::copy(
@@ -94,7 +99,7 @@ std::shared_ptr<Mesh> Mesh::CreateAxis(const std::shared_ptr<scene::Material> &m
     return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(const std::shared_ptr<scene::Material> &material, float size)
+std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(float size)
 {
     glm::vec3 vertices[] = {
         {0.0f, size, 0.0f},
@@ -108,7 +113,6 @@ std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(const std::shared_ptr<scene::Ma
     };
 
     auto mesh = std::make_shared<Mesh>("triangle");
-    mesh->Material = material;
     mesh->AddVertexAttribute("POSITION", simplegltf::View::copy(vertices, simplegltf::ValueType::FloatVec3));
     mesh->AddVertexAttribute("COLOR_0", simplegltf::View::copy(colors, simplegltf::ValueType::FloatVec3));
     return mesh;

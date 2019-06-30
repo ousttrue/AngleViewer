@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <stdint.h>
 #include <vector>
 #include <memory>
@@ -6,49 +6,65 @@
 #include <string>
 #include <simplegltf/simplegltf.h>
 
+namespace agv
+{
+namespace renderer
+{
+class VertexBuffer
+{
+    bool m_isIndex = false;
+    uint32_t m_vbo = 0;
+    int m_componentCount = 0;
 
-namespace agv {
-	namespace renderer {
-		class VertexBuffer
-		{
-			bool m_isIndex = false;
-			uint32_t m_vbo = 0;
+public:
+    VertexBuffer();
+    ~VertexBuffer();
+    void Bind();
+    void Unbind();
+    void BufferData(bool isIndex, const std::byte *values, size_t byteSize, int componentCount);
+    int GetComponentCount() const { return m_componentCount; }
+};
 
-		public:
-			VertexBuffer();
-			~VertexBuffer();
-			void Bind();
-			void Unbind();
-			void BufferData(bool isIndex, const std::byte *values, size_t byteSize);
-		};
+///
+/// scene Mesh から作られるVBOをグループ化する
+///
+class VertexBufferGroup
+{
+public:
+    std::unordered_map<std::string, std::shared_ptr<VertexBuffer>> m_attributes;
+    std::shared_ptr<VertexBuffer> m_indices;
 
+private:
+    uint32_t m_topology;
+    int m_vertexCount;
 
-		class VertexArray
-		{
-			uint32_t m_vao = 0;
+    int m_indexCount;
+    uint32_t m_indexType;
 
-			std::unordered_map<std::string, std::shared_ptr<VertexBuffer>> m_attributes;
+public:
+    VertexBufferGroup(int vertexCount, simplegltf::GltfTopologyType topology);
+    VertexBufferGroup(int vertexCount) : VertexBufferGroup(vertexCount, simplegltf::GltfTopologyType::TRIANGLES)
+    {
+    }
+    void AddAttribute(const std::string &semantic, const simplegltf::View &view);
+    void SetIndex(const simplegltf::View &view);
+    void Draw(int offset, int count);
+};
 
-			uint32_t m_topology;
-			int m_vertexCount;
+///
+/// VertexBufferGroup と Material からVAOを作成する(Shaderの頂点Attributeの並びが違うかもしれない)
+///
+class VertexArray
+{
+    uint32_t m_vao = 0;
 
-			std::shared_ptr<VertexBuffer> m_indices;
-			int m_indexCount;
-			uint32_t m_indexType;
-
-		public:
-			VertexArray(int vertexCount, simplegltf::GltfTopologyType topology);
-			VertexArray(int vertexCount) : VertexArray(vertexCount, simplegltf::GltfTopologyType::TRIANGLES)
-			{}
-			~VertexArray();
-			static std::shared_ptr<VertexArray> CreateTriangles(int vertexCount, const float *vertices, const float *colors);
-			static std::shared_ptr<VertexArray> CreateLines(int vertexCount, const float *vertices, const float *colors);
-
-			void Bind();
-			void Unbind();
-			void AddAttribute(const std::string &semantic, const simplegltf::View &view);
-			void SetIndex(const simplegltf::View &view);
-			void Draw();
-		};
-	}
-}
+public:
+    VertexArray();
+    ~VertexArray();
+    void BindSlot(int slot, const std::shared_ptr<VertexBuffer> &vbo);
+	void UnbindSlot(int slot);
+    void Bind();
+    void Unbind();
+};
+} // namespace renderer
+} // namespace agv

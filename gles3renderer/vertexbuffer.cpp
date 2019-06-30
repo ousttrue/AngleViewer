@@ -46,9 +46,10 @@ void VertexBuffer::Unbind()
     }
 }
 
-void VertexBuffer::BufferData(bool isIndex, const std::byte *values, size_t byteSize)
+void VertexBuffer::BufferData(bool isIndex, const std::byte *values, size_t byteSize, int componentCount)
 {
     m_isIndex = isIndex;
+    m_componentCount = componentCount;
 
     Bind();
     {
@@ -65,10 +66,58 @@ void VertexBuffer::BufferData(bool isIndex, const std::byte *values, size_t byte
 }
 
 ///
+/// VertexBufferGroup
+///
+VertexBufferGroup::VertexBufferGroup(int vertexCount, simplegltf::GltfTopologyType topology)
+    : m_vertexCount(vertexCount), m_topology(static_cast<uint32_t>(topology))
+{
+}
+
+void VertexBufferGroup::AddAttribute(const std::string &semantic, const simplegltf::View &view)
+{
+    auto vbo = std::make_shared<VertexBuffer>();
+    vbo->BufferData(false, view.data, view.size, simplegltf::get_component_count(view.valuetype));
+    m_attributes.insert(std::make_pair(semantic, vbo));
+    vbo->Unbind();
+}
+
+void VertexBufferGroup::SetIndex(const simplegltf::View &view)
+{
+    auto vbo = std::make_shared<VertexBuffer>();
+    vbo->BufferData(true, view.data, view.size, 1);
+    m_indices = vbo;
+    vbo->Unbind();
+    m_indexCount = view.get_count();
+    switch (view.valuetype)
+    {
+    case simplegltf::ValueType::UInt16:
+        m_indexType = GL_UNSIGNED_SHORT;
+        break;
+    case simplegltf::ValueType::UInt32:
+        m_indexType = GL_UNSIGNED_INT;
+        break;
+
+    default:
+        throw std::exception("not implemented");
+    }
+}
+
+void VertexBufferGroup::Draw(int offset, int count)
+{
+    if (m_indices)
+    {
+        glDrawElements(m_topology, count, m_indexType, reinterpret_cast<const void*>(offset));
+    }
+    else
+    {
+        glDrawArrays(m_topology, offset, count);
+    }
+}
+
+///
 /// VertexArray
 ///
-VertexArray::VertexArray(int vertexCount, simplegltf::GltfTopologyType topology)
-    : m_vertexCount(vertexCount), m_topology(static_cast<uint32_t>(topology))
+VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &m_vao);
     assert(m_vao);
@@ -90,66 +139,16 @@ void VertexArray::Unbind()
     glBindVertexArray(0);
 }
 
-void VertexArray::AddAttribute(const std::string &semantic, const simplegltf::View &view)
+void VertexArray::BindSlot(int slot, const std::shared_ptr<VertexBuffer> &vbo)
 {
-    auto vbo = std::make_shared<VertexBuffer>();
-    vbo->BufferData(false, view.data, view.size);
-
-    auto attribute = static_cast<GLuint>(m_attributes.size());
-    m_attributes.insert(std::make_pair(semantic, vbo));
-
-    Bind();
-    {
-        vbo->Bind();
-        glEnableVertexAttribArray(attribute);
-        glVertexAttribPointer(attribute, simplegltf::get_component_count(view.valuetype), GL_FLOAT, GL_FALSE, 0, nullptr);
-        Unbind();
-    }
-
-    glDisableVertexAttribArray(attribute);
-    vbo->Unbind();
+    glEnableVertexAttribArray(slot);
+    glVertexAttribPointer(slot, vbo->GetComponentCount(), GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
-void VertexArray::SetIndex(const simplegltf::View &view)
+void VertexArray::UnbindSlot(int slot)
 {
-    auto vbo = std::make_shared<VertexBuffer>();
-    vbo->BufferData(true, view.data, view.size);
+    glDisableVertexAttribArray(slot);
+}
 
-    m_indices = vbo;
-    m_indexCount = view.get_count();
-    switch (view.valuetype)
-    {
-    case simplegltf::ValueType::UInt16:
-        m_indexType = GL_UNSIGNED_SHORT;
-        break;
-    case simplegltf::ValueType::UInt32:
-        m_indexType = GL_UNSIGNED_INT;
-        break;
-
-    default:
-        throw std::exception("not implemented");
-    }
-
-    Bind();
-    {
-        vbo->Bind();
-        Unbind();
-    }
-    vbo->Unbind();
-    }
-
-    void VertexArray::Draw()
-    {
-        Bind();
-
-        if (m_indices)
-        {
-            glDrawElements(m_topology, m_indexCount, m_indexType, 0);
-        }
-        else
-        {
-            glDrawArrays(m_topology, 0, m_vertexCount);
-        }
-    }
 } // namespace renderer
-} // namespace renderer
+} // namespace agv

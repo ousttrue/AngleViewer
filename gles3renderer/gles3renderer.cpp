@@ -1,4 +1,4 @@
-#include "gles3renderer.h"
+﻿#include "gles3renderer.h"
 #include "shader.h"
 #include "vertexbuffer.h"
 #define GL_GLEXT_PROTOTYPES
@@ -10,8 +10,109 @@ namespace agv
 {
 namespace renderer
 {
-GLES3Renderer::GLES3Renderer()
+
+struct GLES3RendererImpl
 {
+    std::unordered_map<uint32_t, std::shared_ptr<VertexBufferGroup>> m_vertexBuffer_map;
+    std::shared_ptr<VertexBufferGroup> GetOrCreateVertexBuffer(const agv::scene::Mesh *pMesh)
+    {
+        {
+            auto found = m_vertexBuffer_map.find(pMesh->GetID());
+            if (found != m_vertexBuffer_map.end())
+            {
+                return found->second;
+            }
+        }
+
+        auto vbo = std::make_shared<VertexBufferGroup>(pMesh->GetVertexCount(), pMesh->Topology);
+        m_vertexBuffer_map.insert(std::make_pair(pMesh->GetID(), vbo));
+
+        for (auto pair : pMesh->VertexAttributes)
+        {
+            vbo->AddAttribute(pair.first, pair.second);
+        }
+
+        auto &indices = pMesh->Indices;
+        if (indices.data)
+        {
+            vbo->SetIndex(indices);
+        }
+
+        return vbo;
+    }
+
+    std::unordered_map<uint32_t, std::shared_ptr<Shader>> m_shader_map;
+    std::shared_ptr<Shader> GetOrCreateShader(const agv::scene::Material *pMaterial)
+    {
+        auto found = m_shader_map.find(pMaterial->GetID());
+        if (found != m_shader_map.end())
+        {
+            return found->second;
+        }
+
+        auto shader = Shader::Create(*pMaterial);
+        if (shader)
+        {
+            m_shader_map.insert(std::make_pair(pMaterial->GetID(), shader));
+        }
+        else
+        {
+            LOGE << "fail to Shader::Create";
+        }
+        return shader;
+    }
+
+    std::unordered_map<uint32_t, std::shared_ptr<VertexArray>> m_vertexArray_map;
+    std::shared_ptr<VertexArray> GetOrCreateVertexArray(
+        const agv::scene::Submesh *pSubmesh,
+        const std::shared_ptr<VertexBufferGroup> &vbo,
+        const std::shared_ptr<Shader> &shader)
+    {
+        {
+            auto found = m_vertexArray_map.find(pSubmesh->GetID());
+            if (found != m_vertexArray_map.end())
+            {
+                return found->second;
+            }
+        }
+
+        auto vao = std::make_shared<VertexArray>();
+        m_vertexArray_map.insert(std::make_pair(pSubmesh->GetID(), vao));
+
+        vao->Bind();
+
+        // 使うやつだけVAOに登録する
+        auto position = vbo->m_attributes["POSITION"];
+        position->Bind();
+        vao->BindSlot(0, position);
+        if (vbo->m_indices)
+        {
+            vbo->m_indices->Bind();
+        }
+
+        vao->Unbind();
+
+        {
+            // cleanup
+            if (vbo->m_indices)
+            {
+                vbo->m_indices->Unbind();
+            }
+            position->Unbind();
+        }
+
+        return vao;
+    }
+};
+
+GLES3Renderer::GLES3Renderer()
+    : m_impl(new GLES3RendererImpl)
+{
+}
+
+GLES3Renderer::~GLES3Renderer()
+{
+    delete m_impl;
 }
 
 void GLES3Renderer::Resize(int w, int h)
@@ -23,29 +124,37 @@ void GLES3Renderer::Resize(int w, int h)
 
 void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode, const agv::scene::Node *node)
 {
-    auto shader = GetOrCreateShader(node);
-    if (!shader)
+    auto &mesh = node->Mesh;
+    if (mesh)
     {
-        return;
-    }
+        auto vbo = m_impl->GetOrCreateVertexBuffer(&*mesh);
 
-    shader->Use();
+        int offset = 0;
+        for (auto &submesh : mesh->Submeshes)
+        {
+            auto shader = m_impl->GetOrCreateShader(&*submesh->GetMaterial());
+            if (shader)
+            {
+                shader->Use();
 
-    auto projection = camera->GetMatrix();
-    auto view = cameraNode->transform;
-    auto model = node->transform;
+                auto projection = camera->GetMatrix();
+                shader->SetUniformValue("ProjectionMatrix", projection);
 
-    shader->SetUniformValue("ProjectionMatrix", projection);
-    shader->SetUniformValue("ViewMatrix", view);
-    shader->SetUniformValue("ModelMatrix", model);
+                auto view = cameraNode->transform;
+                shader->SetUniformValue("ViewMatrix", view);
 
-    glm::mat4 mvp = projection * view * model;
-    shader->SetUniformValue("MVPMatrix", mvp);
+                auto model = node->transform;
+                shader->SetUniformValue("ModelMatrix", model);
 
-    auto vbo = GetOrCreateVertexArray(node);
-    if (vbo)
-    {
-        vbo->Draw();
+                glm::mat4 mvp = projection * view * model;
+                shader->SetUniformValue("MVPMatrix", mvp);
+
+                auto vao = m_impl->GetOrCreateVertexArray(&*submesh, vbo, shader);
+                vao->Bind();
+                vbo->Draw(offset, submesh->GetDrawCount());
+            }
+            offset += submesh->GetDrawCount();
+        }
     }
 }
 
@@ -89,73 +198,5 @@ void GLES3Renderer::Draw(agv::scene::Scene *pScene)
     }
 }
 
-std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const agv::scene::Node *pNode)
-{
-    auto found = m_shader_map.find(pNode->GetID());
-    if (found != m_shader_map.end())
-    {
-        return found->second;
-    }
-
-    auto mesh = pNode->Mesh;
-    if (!mesh)
-    {
-        return nullptr;
-    }
-
-    auto shader = Shader::Create(mesh->Material);
-    if (shader)
-    {
-        m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
-    }
-    return shader;
-}
-
-std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::scene::Node *pNode)
-{
-    {
-        auto found = m_vertexbuffer_map.find(pNode->GetID());
-        if (found != m_vertexbuffer_map.end())
-        {
-            return found->second;
-        }
-    }
-
-    auto mesh = pNode->Mesh;
-    if (!mesh)
-    {
-        return nullptr;
-    }
-
-    std::shared_ptr<VertexArray> vao;
-
-    vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount(), mesh->Topology);
-    vao->Bind();
-    {
-        auto found = mesh->VertexAttributes.find("POSITION");
-        vao->AddAttribute(found->first, found->second);
-    }
-    // for (auto pair : mesh->VertexAttributes)
-    // {
-    //     vao->AddAttribute(pair.first, pair.second);
-    // }
-
-    if (vao)
-    {
-        auto &indices = mesh->Indices;
-        if (indices.data)
-        {
-            vao->SetIndex(indices);
-        }
-        vao->Unbind();
-
-        m_vertexbuffer_map.insert(std::make_pair(pNode->GetID(), vao));
-    }
-    else
-    {
-        LOGE << "fal to create triangles";
-    }
-    return vao;
-}
 } // namespace renderer
 } // namespace agv
