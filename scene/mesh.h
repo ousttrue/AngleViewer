@@ -8,7 +8,6 @@
 
 namespace agv {
 	namespace scene {
-		class GLTFLoader;
 		class Mesh
 		{
 		public:
@@ -36,7 +35,7 @@ namespace agv {
 				float size);
 
 			static std::shared_ptr<Mesh> CreateFromGltf(const renderer::Material &material,
-				const std::shared_ptr<GLTFLoader> &gltf, int meshIndex);
+				simplegltf::Storage &gltf, int meshIndex);
 
 			const renderer::Material& GetMaterial()const { return m_material; }
 			Topology GetTopology()const { return m_topology; }

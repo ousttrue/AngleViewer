@@ -1,5 +1,4 @@
 #include "mesh.h"
-#include "loader.h"
 #include <plog/Log.h>
 #include <glm/glm.hpp>
 
@@ -116,23 +115,24 @@ std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(const renderer::Material &mater
 }
 
 std::shared_ptr<Mesh> Mesh::CreateFromGltf(const renderer::Material &material,
-                                           const std::shared_ptr<GLTFLoader> &gltf, int meshIndex)
+                                           simplegltf::Storage &storage, int meshIndex)
 {
     auto mesh = std::make_shared<Mesh>();
     mesh->m_material = material;
 
-    auto primitiveCount = gltf->MeshGetPrimitiveCount(meshIndex);
-    for (int i = 0; i < primitiveCount; ++i)
+    auto &gltfMesh = storage.gltf.meshes[meshIndex];
+    for (int i = 0; i < gltfMesh.primitives.size(); ++i)
     {
-        mesh->m_vertices = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "POSITION");
-        mesh->m_colors = gltf->MeshReadPrimitiveAttribute(meshIndex, i, "COLOR_0");
+        auto &primitive = gltfMesh.primitives[i];
+        mesh->m_vertices = storage.get_from_accessor(primitive.attributes["POSITION"]);
+        mesh->m_colors = storage.get_from_accessor(primitive.attributes["COLOR_0"]);
         if (mesh->m_colors.get_count() != mesh->m_vertices.get_count())
         {
             std::vector<glm::vec3> colors(mesh->m_vertices.get_count(), glm::vec3(1.0f));
             mesh->m_colors = simplegltf::View::copy(colors, simplegltf::ValueType::FloatVec3);
         }
 
-        mesh->m_indices = gltf->MeshReadPrimitiveIndex(meshIndex, i);
+        mesh->m_indices = storage.get_from_accessor(primitive.indices);
 
         return mesh;
     }
