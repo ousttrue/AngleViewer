@@ -14,7 +14,7 @@ namespace agv {
 		public:
 			Shader(uint32_t program);
 
-			static std::shared_ptr<Shader> Create(const Material &material);
+			static std::shared_ptr<Shader> Create(const std::shared_ptr<scene::Material> &material);
 
 			uint32_t GetUniformLocation(const std::string &name);
 			void SetUniformValue(uint32_t location, const glm::mat4 &m);

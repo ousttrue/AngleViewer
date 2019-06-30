@@ -103,7 +103,7 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const agv::scene::Node 
         return nullptr;
     }
 
-    auto shader = Shader::Create(mesh->GetMaterial());
+    auto shader = Shader::Create(mesh->Material);
     if (shader)
     {
         m_shader_map.insert(std::make_pair(pNode->GetID(), shader));
@@ -113,10 +113,12 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const agv::scene::Node 
 
 std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::scene::Node *pNode)
 {
-    auto found = m_vertexbuffer_map.find(pNode->GetID());
-    if (found != m_vertexbuffer_map.end())
     {
-        return found->second;
+        auto found = m_vertexbuffer_map.find(pNode->GetID());
+        if (found != m_vertexbuffer_map.end())
+        {
+            return found->second;
+        }
     }
 
     auto mesh = pNode->Mesh;
@@ -127,34 +129,16 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
 
     std::shared_ptr<VertexArray> vao;
 
-    switch (mesh->GetTopology())
+    vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount(), mesh->Topology);
+    vao->Bind();
     {
-    case scene::Mesh::Triangles:
-    {
-        vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount());
-        vao->Bind();
         auto found = mesh->VertexAttributes.find("POSITION");
         vao->AddAttribute(found->first, found->second);
-        // for (auto pair : mesh->VertexAttributes)
-        // {
-        //     vao->AddAttribute(pair.first, pair.second);
-        // }
-        break;
     }
-
-    case scene::Mesh::Lines:
-    {
-        vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount(), simplegltf::GltfTopologyType::LINES);
-        vao->Bind();
-        auto found = mesh->VertexAttributes.find("POSITION");
-        vao->AddAttribute(found->first, found->second);
-        // for (auto pair : mesh->VertexAttributes)
-        // {
-        //     vao->AddAttribute(pair.first, pair.second);
-        // }
-        break;
-    }
-    }
+    // for (auto pair : mesh->VertexAttributes)
+    // {
+    //     vao->AddAttribute(pair.first, pair.second);
+    // }
 
     if (vao)
     {

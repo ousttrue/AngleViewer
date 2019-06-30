@@ -1,15 +1,21 @@
 #pragma once
-#include <string>
+#include "objectbase.h"
 
+namespace agv
+{
+namespace scene
+{
 
-namespace agv {
-	namespace renderer {
+class Material : public ObjectBase
+{
+public:
+    Material(const std::string &name) : ObjectBase(name)
+    {
+    }
 
-		struct Material
-		{
-			std::string vs;
-			std::string fs;
-		};
+    std::string vs;
+    std::string fs;
+};
 
-	}
-}
+} // namespace renderer
+} // namespace agv

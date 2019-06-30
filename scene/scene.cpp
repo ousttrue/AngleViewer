@@ -36,7 +36,7 @@ namespace agv
 {
 namespace scene
 {
-Scene::Scene(const renderer::Material &material)
+Scene::Scene(const std::shared_ptr<scene::Material> &material)
     : m_material(material)
 {
     m_camera = std::make_shared<PerspectiveCamera>();
@@ -216,7 +216,7 @@ void Scene::Load(const std::wstring &path)
             for (int i = 0; i < gltfMesh.primitives.size(); ++i)
             {
                 auto mesh = std::make_shared<Mesh>(gltfMesh.name);
-                mesh->m_material = m_material;
+                mesh->Material = m_material;
 
                 auto &primitive = gltfMesh.primitives[i];
                 for (auto pair : primitive.attributes)

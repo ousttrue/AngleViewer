@@ -11,24 +11,17 @@ namespace agv
 {
 namespace scene
 {
+
 class Mesh : ObjectBase
 {
-public:
-    enum Topology
-    {
-        Triangles,
-        Lines,
-    };
-
-    renderer::Material m_material;
-
-private:
-    Topology m_topology = Topology::Triangles;
-
 public:
     Mesh(const std::string &name) : ObjectBase(name)
     {
     }
+
+    simplegltf::GltfTopologyType Topology = simplegltf::GltfTopologyType::TRIANGLES;
+
+    std::shared_ptr<scene::Material> Material;
 
     std::unordered_map<std::string, simplegltf::View> VertexAttributes;
     void AddVertexAttribute(const std::string &semantic, simplegltf::View view)
@@ -47,15 +40,12 @@ public:
 
     simplegltf::View Indices;
 
-    static std::shared_ptr<Mesh> CreateGrid(const renderer::Material &material,
+    static std::shared_ptr<Mesh> CreateGrid(const std::shared_ptr<scene::Material> &material,
                                             float size, int count);
-    static std::shared_ptr<Mesh> CreateAxis(const renderer::Material &material,
+    static std::shared_ptr<Mesh> CreateAxis(const std::shared_ptr<scene::Material> &material,
                                             float size);
-    static std::shared_ptr<Mesh> CreateSampleTriangle(const renderer::Material &material,
+    static std::shared_ptr<Mesh> CreateSampleTriangle(const std::shared_ptr<scene::Material> &material,
                                                       float size);
-
-    const renderer::Material &GetMaterial() const { return m_material; }
-    Topology GetTopology() const { return m_topology; }
 };
 } // namespace scene
 } // namespace agv
