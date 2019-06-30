@@ -1,4 +1,5 @@
 #pragma once
+#include "objectbase.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -10,7 +11,7 @@ namespace agv
 {
 namespace scene
 {
-class Mesh
+class Mesh : ObjectBase
 {
 public:
     enum Topology
@@ -20,23 +21,29 @@ public:
     };
 
     renderer::Material m_material;
-private:
 
+private:
     Topology m_topology = Topology::Triangles;
 
 public:
+    Mesh(const std::string &name) : ObjectBase(name)
+    {
+    }
+
     std::unordered_map<std::string, simplegltf::View> VertexAttributes;
     void AddVertexAttribute(const std::string &semantic, simplegltf::View view)
     {
         VertexAttributes.insert(std::make_pair(semantic, view));
     }
-	size_t GetVertexCount()const { 
-		auto found = VertexAttributes.find("POSITION");
-		if(found==VertexAttributes.end()){
-			return 0;
-		}
-		return found->second.get_count();
-	}
+    size_t GetVertexCount() const
+    {
+        auto found = VertexAttributes.find("POSITION");
+        if (found == VertexAttributes.end())
+        {
+            return 0;
+        }
+        return found->second.get_count();
+    }
 
     simplegltf::View Indices;
 

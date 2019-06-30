@@ -215,7 +215,7 @@ void Scene::Load(const std::wstring &path)
             auto &gltfMesh = m_storage.gltf.meshes[gltfNode.mesh];
             for (int i = 0; i < gltfMesh.primitives.size(); ++i)
             {
-                auto mesh = std::make_shared<Mesh>();
+                auto mesh = std::make_shared<Mesh>(gltfMesh.name);
                 mesh->m_material = m_material;
 
                 auto &primitive = gltfMesh.primitives[i];
