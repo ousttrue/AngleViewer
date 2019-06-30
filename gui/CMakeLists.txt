@@ -1,19 +1,20 @@
 SET(SUB_NAME gui)
+SET(IMGUI_DIR ../dependencies/imgui)
 
 FILE(GLOB SRC
 	*.cpp
 	*.h
-    ../imgui/imgui.cpp
-    ../imgui/imgui.h
-    ../imgui/imgui_demo.cpp
-    ../imgui/imgui_draw.cpp
-    ../imgui/imgui_internal.h
-    ../imgui/imconfig.h
-    ../imgui/stb_rect_pack.h
-    ../imgui/stb_textedit.h
-    ../imgui/stb_truetype.h
-    ../imgui/examples/imgui_impl_opengl3.h
-    ../imgui/examples/imgui_impl_opengl3.cpp
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui.h
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_internal.h
+    ${IMGUI_DIR}/imconfig.h
+    ${IMGUI_DIR}/stb_rect_pack.h
+    ${IMGUI_DIR}/stb_textedit.h
+    ${IMGUI_DIR}/stb_truetype.h
+    ${IMGUI_DIR}/examples/imgui_impl_opengl3.h
+    ${IMGUI_DIR}/examples/imgui_impl_opengl3.cpp
 	) 
 
 ADD_LIBRARY(${SUB_NAME} 

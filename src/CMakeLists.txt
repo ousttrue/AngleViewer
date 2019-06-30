@@ -18,8 +18,6 @@ TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
     ../scene
     ../gui
     ../gles3renderer
-    ../plog/include
-	${CMAKE_INSTALL_PREFIX}/include
 	)
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}

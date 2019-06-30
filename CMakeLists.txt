@@ -1,11 +1,17 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
 PROJECT(AngleViewer VERSION 0.1.0)
 
-set(CMAKE_INSTALL_PREFIX $ENV{VCPKG_DIR}/installed/x64-windows)
+SET(CMAKE_INSTALL_PREFIX $ENV{VCPKG_DIR}/installed/x64-windows)
+SET(DEPENDS_DIR ${CMAKE_CURRENT_LIST_DIR}/dependencies)
 
-add_definitions(-DNOMINMAX)
+add_definitions(
+    -DNOMINMAX
+	-DUNICODE=1
+	-D_UNICODE=1
+)
 INCLUDE_DIRECTORIES(
-    simplegltf
+    ${DEPENDS_DIR}/simplegltf
+    ${DEPENDS_DIR}/imgui
     $ENV{VCPKG_DIR}/installed/x64-windows/include
 )
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/glTF-SDK/Build/CMake/Modules")

@@ -19,7 +19,7 @@ namespace agv {
 
 			renderer::Material m_material;
 
-			std::shared_ptr<GLTFLoader> m_gltf;
+			simplegltf::Storage m_storage;
 
 		public:
 			Scene(const renderer::Material &material);
