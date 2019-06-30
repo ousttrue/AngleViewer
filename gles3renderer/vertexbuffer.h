@@ -64,7 +64,7 @@ public:
     void BindSlot(int slot, const std::shared_ptr<VertexBuffer> &vbo);
 	void UnbindSlot(int slot);
     void Bind();
-    void Unbind();
+    static void Unbind();
 };
 } // namespace renderer
 } // namespace agv

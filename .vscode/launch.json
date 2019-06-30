@@ -10,12 +10,16 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/src/AngleViewer.exe",
             "args": [
-                "${env:GLTF_SAMPLE_MODELS}/2.0/Box/glTF-Binary/Box.glb"
+                // "${env:GLTF_SAMPLE_MODELS}/2.0/Box/glTF-Binary/Box.glb"
+                "${env:ALICIA}"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "PATH", "value": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"}
+                {
+                    "name": "PATH",
+                    "value": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"
+                }
             ],
             "externalConsole": true
         }

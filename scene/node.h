@@ -21,7 +21,7 @@ public:
     }
 
     glm::mat4 transform = glm::identity<glm::mat4>();
-    std::shared_ptr<Mesh> Mesh;
+    std::vector<std::shared_ptr<Mesh>> Meshes;
     std::shared_ptr<INodeAnimation> Animation;
 
 private:

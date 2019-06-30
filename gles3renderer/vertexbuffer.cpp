@@ -106,7 +106,8 @@ void VertexBufferGroup::Draw(int offset, int count)
 {
     if (m_indices)
     {
-        glDrawElements(m_topology, count, m_indexType, reinterpret_cast<const void*>(offset));
+        uint64_t offset64 = offset;
+        glDrawElements(m_topology, count, m_indexType, reinterpret_cast<const void*>(offset64));
     }
     else
     {

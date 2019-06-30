@@ -81,13 +81,16 @@ struct GLES3RendererImpl
 
         vao->Bind();
 
-        // 使うやつだけVAOに登録する
         auto position = vbo->m_attributes["POSITION"];
-        position->Bind();
-        vao->BindSlot(0, position);
-        if (vbo->m_indices)
         {
-            vbo->m_indices->Bind();
+            // 使うやつだけVAOに登録する
+            position->Bind();
+            vao->BindSlot(0, position);
+
+            if (vbo->m_indices)
+            {
+                vbo->m_indices->Bind();
+            }
         }
 
         vao->Unbind();
@@ -124,8 +127,7 @@ void GLES3Renderer::Resize(int w, int h)
 
 void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode, const agv::scene::Node *node)
 {
-    auto &mesh = node->Mesh;
-    if (mesh)
+    for (auto &mesh : node->Meshes)
     {
         auto vbo = m_impl->GetOrCreateVertexBuffer(&*mesh);
 
@@ -155,6 +157,7 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
             }
             offset += submesh->GetDrawCount();
         }
+        VertexArray::Unbind();
     }
 }
 
