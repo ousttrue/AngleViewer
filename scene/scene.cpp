@@ -36,9 +36,10 @@ namespace agv
 {
 namespace scene
 {
-Scene::Scene(const std::shared_ptr<scene::Material> &material)
-    : m_material(material)
+Scene::Scene()
 {
+    m_gizmoMaterial = std::make_shared<Material>("_gizmo");
+
     m_camera = std::make_shared<PerspectiveCamera>();
     m_cameraNode = std::make_shared<Node>("_camera");
     m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
@@ -55,14 +56,14 @@ void Scene::Setup()
     {
         auto axis = std::make_shared<Node>("_axis");
         auto mesh = Mesh::CreateAxis(grid_edge);
-        mesh->WholeSubmesh(m_material);
+        mesh->WholeSubmesh(m_gizmoMaterial);
         axis->Meshes.push_back(mesh);
         m_gizmos.push_back(axis);
     }
     {
         auto grid = std::make_shared<Node>("_grid");
         auto mesh = Mesh::CreateGrid(grid_size, grid_count);
-        mesh->WholeSubmesh(m_material);
+        mesh->WholeSubmesh(m_gizmoMaterial);
         grid->Meshes.push_back(mesh);
         m_gizmos.push_back(grid);
     }
@@ -72,7 +73,7 @@ void Scene::CreateDefaultScene()
 {
     auto node = std::make_shared<Node>("_triangle");
     auto mesh = Mesh::CreateSampleTriangle(1.0f);
-    mesh->WholeSubmesh(m_material);
+    mesh->WholeSubmesh(m_gizmoMaterial);
     node->Meshes.push_back(mesh);
     node->Animation = std::make_shared<NodeRotation>(50.0f);
     m_nodes.push_back(node);
@@ -232,7 +233,7 @@ void Scene::Load(const std::wstring &path)
                 }
                 mesh->Indices = m_storage.get_from_accessor(primitive.indices);
 
-                mesh->WholeSubmesh(m_material);
+                mesh->WholeSubmesh(m_gizmoMaterial);
 
                 node->Meshes.push_back(mesh);
             }

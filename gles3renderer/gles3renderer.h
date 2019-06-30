@@ -3,7 +3,7 @@
 #include <memory>
 #include <scene.h>
 #include <unordered_map>
-
+#include "shadersourcemanager.h"
 
 namespace agv { namespace renderer {
 		struct GLES3RendererImpl;

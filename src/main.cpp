@@ -336,11 +336,13 @@ int WINAPI WinMain(
 
     RegisterClassEx(&wndclass);
 
-    auto material = std::make_shared<agv::scene::Material>("default");
-    material->vs = to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE));
-    material->fs = to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE));
+    // set gizmo shader
+    agv::renderer::ShaderSourceManager::Instance.SetSource(
+        agv::scene::ShaderType::gizmo,
+        to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
+        to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE)));
 
-    agv::scene::Scene scene(material);
+    agv::scene::Scene scene;
 
     if (__argc == 1)
     {

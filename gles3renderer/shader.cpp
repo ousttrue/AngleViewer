@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "shadersourcemanager.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl3.h> 
 #include <plog/Log.h>
@@ -47,11 +48,12 @@ namespace agv {
 
 		std::shared_ptr<Shader> Shader::Create(const scene::Material &material)
 		{
-			auto vertexShader = LoadShader(GL_VERTEX_SHADER, material.vs.c_str());
+			auto source = ShaderSourceManager::Instance.GetSource(material.ShaderType);
+			auto vertexShader = LoadShader(GL_VERTEX_SHADER, source->vs.c_str());
 			if (!vertexShader) {
 				return  nullptr;
 			}
-			auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, material.fs.c_str());
+			auto fragmentShader = LoadShader(GL_FRAGMENT_SHADER, source->fs.c_str());
 			if (!fragmentShader) {
 				return nullptr;
 			}

@@ -6,6 +6,7 @@
         "LBUTTONDOWN",
         "LBUTTONUP",
         "LOGD",
+        "LOGI",
         "LPARAM",
         "LRESULT",
         "MBUTTONDOWN",

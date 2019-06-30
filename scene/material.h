@@ -6,15 +6,21 @@ namespace agv
 namespace scene
 {
 
+enum class ShaderType
+{
+    gizmo,
+    unlit,
+    pbr,
+};
+
 class Material : public ObjectBase
 {
 public:
+    ShaderType ShaderType = ShaderType::gizmo; 
+
     Material(const std::string &name) : ObjectBase(name)
     {
     }
-
-    std::string vs;
-    std::string fs;
 };
 
 } // namespace renderer

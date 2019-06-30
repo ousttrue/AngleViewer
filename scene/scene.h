@@ -5,6 +5,7 @@
 #include "node_animation.h"
 #include "node.h"
 #include "material.h"
+#include "model.h"
 
 namespace agv
 {
@@ -18,12 +19,13 @@ class Scene
     uint32_t m_seconds = 0;
     uint32_t m_fps = 0;
 
-    std::shared_ptr<scene::Material> m_material;
+    std::shared_ptr<Material> m_gizmoMaterial;
 
+    //std::shared_ptr<Model> m_model;
     simplegltf::Storage m_storage;
 
 public:
-    Scene(const std::shared_ptr<scene::Material> &material);
+    Scene();
 
 private:
     std::shared_ptr<ICamera> m_camera;
