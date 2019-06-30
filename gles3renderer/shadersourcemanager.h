@@ -1,8 +1,6 @@
 #pragma once
 #include "material.h"
-#include <unordered_map>
-#include <string>
-#include <memory>
+
 
 namespace agv
 {
@@ -32,10 +30,7 @@ class ShaderSourceManager
     }
 
 public:
-    std::shared_ptr<ShaderSource> GetSource(scene::ShaderType shaderType)
-    {
-        return m_sourceMap[shaderType];
-    }
+    std::shared_ptr<ShaderSource> GetSource(scene::ShaderType shaderType);
 
     void SetSource(scene::ShaderType shaderType, const std::string &vs, const std::string &fs)
     {

@@ -21,8 +21,15 @@ class Scene
 
     std::shared_ptr<Material> m_gizmoMaterial;
 
-    //std::shared_ptr<Model> m_model;
-    simplegltf::Storage m_storage;
+    std::shared_ptr<Model> m_model;
+
+public:
+    Model *GetModel() const
+    {
+        if (!m_model)
+            return nullptr;
+        return &*m_model;
+    }
 
 public:
     Scene();
@@ -61,17 +68,7 @@ public:
         return &*m_gizmos[index];
     }
 
-private:
-    std::vector<std::shared_ptr<Node>> m_nodes;
-
 public:
-    int GetNodeCount() const { return static_cast<int>(m_nodes.size()); }
-    const Node *GetNode(int index) const
-    {
-        if (index < 0 || index >= m_nodes.size())
-            return nullptr;
-        return &*m_nodes[index];
-    }
     void Setup();
     void Update(uint32_t now);
     void CreateDefaultScene();

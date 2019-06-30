@@ -48,7 +48,7 @@ public:
 
         for (auto c : str)
         {
-            m_buffer->push_back(c);
+            m_buffer->push_back(static_cast<char>(c));
         }
     }
 
@@ -336,9 +336,14 @@ int WINAPI WinMain(
 
     RegisterClassEx(&wndclass);
 
-    // set gizmo shader
+    // set shader
     agv::renderer::ShaderSourceManager::Instance.SetSource(
         agv::scene::ShaderType::gizmo,
+        to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
+        to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE)));
+    // set shader
+    agv::renderer::ShaderSourceManager::Instance.SetSource(
+        agv::scene::ShaderType::unlit,
         to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
         to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE)));
 

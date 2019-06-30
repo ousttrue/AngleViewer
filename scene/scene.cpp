@@ -57,14 +57,14 @@ void Scene::Setup()
         auto axis = std::make_shared<Node>("_axis");
         auto mesh = Mesh::CreateAxis(grid_edge);
         mesh->WholeSubmesh(m_gizmoMaterial);
-        axis->Meshes.push_back(mesh);
+        axis->MeshGroup = MeshGroup::Create(mesh);
         m_gizmos.push_back(axis);
     }
     {
         auto grid = std::make_shared<Node>("_grid");
         auto mesh = Mesh::CreateGrid(grid_size, grid_count);
         mesh->WholeSubmesh(m_gizmoMaterial);
-        grid->Meshes.push_back(mesh);
+        grid->MeshGroup = MeshGroup::Create(mesh);
         m_gizmos.push_back(grid);
     }
 }
@@ -74,9 +74,10 @@ void Scene::CreateDefaultScene()
     auto node = std::make_shared<Node>("_triangle");
     auto mesh = Mesh::CreateSampleTriangle(1.0f);
     mesh->WholeSubmesh(m_gizmoMaterial);
-    node->Meshes.push_back(mesh);
+    node->MeshGroup = MeshGroup::Create(mesh);
     node->Animation = std::make_shared<NodeRotation>(50.0f);
-    m_nodes.push_back(node);
+    m_model = std::make_shared<Model>();
+    m_model->Root->AddChild(node);
 }
 
 static void DrawNodeRecursive(const std::shared_ptr<Node> &node)
@@ -113,13 +114,10 @@ void Scene::Update(uint32_t now)
         now * 0.001f,
         delta * 0.001f,
     };
-    for (auto node : m_nodes)
+
+    if (m_model)
     {
-        auto &animation = node->Animation;
-        if (animation)
-        {
-            animation->Update(&*node, time);
-        }
+        m_model->SetTime(time);
     }
 
     ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
@@ -133,7 +131,6 @@ void Scene::Update(uint32_t now)
                     auto path = OpenDialog();
                     if (!path.empty())
                     {
-
                         Load(path);
                     }
                 }
@@ -146,9 +143,9 @@ void Scene::Update(uint32_t now)
         ImGui::Text("time: %d", now);
         ImGui::Text("fps: %d", m_fps);
 
-        for (auto &node : m_nodes)
+        if (m_model)
         {
-            if (!node->GetParent())
+            for (auto &node : m_model->Root->GetChildren())
             {
                 DrawNodeRecursive(node);
             }
@@ -159,23 +156,21 @@ void Scene::Update(uint32_t now)
 
     ImGui::Begin("gltf");
     {
-        if (!m_storage.buffers.empty())
+        if (m_model)
         {
             //ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
-            auto &gltf = m_storage.gltf;
 
             //ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Once);
             if (ImGui::TreeNode("nodes"))
             {
 
                 ImGui::Columns(2);
-                auto nodeCount = gltf.nodes.size();
-                for (int i = 0; i < nodeCount; ++i)
+                for (int i = 0; i < m_model->Nodes.size(); ++i)
                 {
-                    auto nodeName = gltf.nodes[i].name;
-                    ImGui::PushID(nodeName.c_str());
+                    auto &node = m_model->Nodes[i];
+                    ImGui::PushID(node->GetName().c_str());
 
-                    bool isOpen = ImGui::TreeNode("%s", nodeName.c_str());
+                    bool isOpen = ImGui::TreeNode("%s", node->GetName().c_str());
                     ImGui::NextColumn();
                     if (isOpen)
                     {
@@ -200,55 +195,15 @@ void Scene::Update(uint32_t now)
 
 void Scene::Load(const std::wstring &path)
 {
-    m_nodes.clear();
-
-    if (!m_storage.from_path(path))
+    simplegltf::Storage storage;
+    if (!storage.from_path(path))
     {
+        LOGE << "fail to load: " << path;
         return;
     }
     LOGI << "load: " << path;
-    auto &gltf = m_storage.gltf;
 
-    for (auto &gltfMaterial : gltf.materials)
-    {
-    }
-
-    for (auto &gltfNode : gltf.nodes)
-    {
-        LOGD << gltfNode.name;
-        auto node = std::make_shared<Node>(gltfNode.name);
-        m_nodes.push_back(node);
-
-        if (gltfNode.mesh >= 0)
-        {
-            auto &gltfMesh = m_storage.gltf.meshes[gltfNode.mesh];
-            for (int i = 0; i < gltfMesh.primitives.size(); ++i)
-            {
-                auto mesh = std::make_shared<Mesh>(gltfMesh.name);
-
-                auto &primitive = gltfMesh.primitives[i];
-                for (auto pair : primitive.attributes)
-                {
-                    mesh->AddVertexAttribute(pair.first, m_storage.get_from_accessor(pair.second));
-                }
-                mesh->Indices = m_storage.get_from_accessor(primitive.indices);
-
-                mesh->WholeSubmesh(m_gizmoMaterial);
-
-                node->Meshes.push_back(mesh);
-            }
-        }
-    }
-
-    // build tree
-    for (int i = 0; i < gltf.nodes.size(); ++i)
-    {
-        auto &n = m_nodes[i];
-        for (auto childIndex : gltf.nodes[i].children)
-        {
-            n->AddChild(m_nodes[childIndex]);
-        }
-    }
+    m_model = Model::Load(storage);
 }
 } // namespace scene
 } // namespace agv

@@ -127,37 +127,41 @@ void GLES3Renderer::Resize(int w, int h)
 
 void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode, const agv::scene::Node *node)
 {
-    for (auto &mesh : node->Meshes)
+    auto meshGroup = node->MeshGroup;
+    if (meshGroup)
     {
-        auto vbo = m_impl->GetOrCreateVertexBuffer(&*mesh);
-
-        int offset = 0;
-        for (auto &submesh : mesh->Submeshes)
+        for (auto &mesh : meshGroup->Meshes)
         {
-            auto shader = m_impl->GetOrCreateShader(&*submesh->GetMaterial());
-            if (shader)
+            auto vbo = m_impl->GetOrCreateVertexBuffer(&*mesh);
+
+            int offset = 0;
+            for (auto &submesh : mesh->Submeshes)
             {
-                shader->Use();
+                auto shader = m_impl->GetOrCreateShader(&*submesh->GetMaterial());
+                if (shader)
+                {
+                    shader->Use();
 
-                auto projection = camera->GetMatrix();
-                shader->SetUniformValue("ProjectionMatrix", projection);
+                    auto projection = camera->GetMatrix();
+                    shader->SetUniformValue("ProjectionMatrix", projection);
 
-                auto view = cameraNode->transform;
-                shader->SetUniformValue("ViewMatrix", view);
+                    auto view = cameraNode->transform;
+                    shader->SetUniformValue("ViewMatrix", view);
 
-                auto model = node->transform;
-                shader->SetUniformValue("ModelMatrix", model);
+                    auto model = node->transform;
+                    shader->SetUniformValue("ModelMatrix", model);
 
-                glm::mat4 mvp = projection * view * model;
-                shader->SetUniformValue("MVPMatrix", mvp);
+                    glm::mat4 mvp = projection * view * model;
+                    shader->SetUniformValue("MVPMatrix", mvp);
 
-                auto vao = m_impl->GetOrCreateVertexArray(&*submesh, vbo, shader);
-                vao->Bind();
-                vbo->Draw(offset, submesh->GetDrawCount());
+                    auto vao = m_impl->GetOrCreateVertexArray(&*submesh, vbo, shader);
+                    vao->Bind();
+                    vbo->Draw(offset, submesh->GetDrawCount());
+                }
+                offset += submesh->GetDrawCount();
             }
-            offset += submesh->GetDrawCount();
+            VertexArray::Unbind();
         }
-        VertexArray::Unbind();
     }
 }
 
@@ -190,14 +194,16 @@ void GLES3Renderer::Draw(agv::scene::Scene *pScene)
             }
         }
 
-        {
-            auto count = pScene->GetNodeCount();
-            for (int i = 0; i < count; ++i)
-            {
-                auto node = pScene->GetNode(i);
-                DrawNode(camera, cameraNode, node);
-            }
-        }
+        DrawModel(camera, cameraNode, pScene->GetModel());
+    }
+}
+
+void GLES3Renderer::DrawModel(const agv::scene::ICamera *camera, const agv::scene::Node *cameraNode,
+                              agv::scene::Model *pModel)
+{
+    for (auto &node : pModel->Nodes)
+    {
+        DrawNode(camera, cameraNode, &*node);
     }
 }
 

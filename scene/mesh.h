@@ -1,17 +1,12 @@
 #pragma once
 #include "objectbase.h"
-#include <string>
-#include <vector>
-#include <memory>
-#include <unordered_map>
-#include "material.h"
-#include <simplegltf/simplegltf.h>
 
 namespace agv
 {
 namespace scene
 {
 
+class Material;
 class Submesh : public ObjectBase
 {
     std::shared_ptr<Material> m_material;
@@ -62,5 +57,24 @@ public:
     static std::shared_ptr<Mesh> CreateAxis(float size);
     static std::shared_ptr<Mesh> CreateSampleTriangle(float size);
 };
+
+class MeshGroup
+{
+public:
+    std::string Name;
+    std::vector<std::shared_ptr<Mesh>> Meshes;
+
+    static std::shared_ptr<MeshGroup> Load(const simplegltf::Storage &storage,
+                                           const simplegltf::GltfMesh &gltfMesh,
+                                           const std::vector<std::shared_ptr<Material>> &materials);
+
+    static std::shared_ptr<MeshGroup> Create(const std::shared_ptr<Mesh> &mesh)
+    {
+        auto meshGroup = std::make_shared<MeshGroup>();
+        meshGroup->Meshes.push_back(mesh);
+        return meshGroup;
+    }
+};
+
 } // namespace scene
 } // namespace agv

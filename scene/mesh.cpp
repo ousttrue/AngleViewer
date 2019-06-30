@@ -118,5 +118,29 @@ std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(float size)
     return mesh;
 }
 
+std::shared_ptr<MeshGroup> MeshGroup::Load(const simplegltf::Storage &storage,
+                                           const simplegltf::GltfMesh &gltfMesh,
+                                           const std::vector<std::shared_ptr<Material>> &materials)
+{
+    auto &gltf = storage.gltf;
+    auto group = std::make_shared<MeshGroup>();
+
+    for (auto &gltfPrimitive : gltfMesh.primitives)
+    {
+        auto mesh = std::make_shared<Mesh>(gltfMesh.name);
+        group->Meshes.push_back(mesh);
+
+        for (auto pair : gltfPrimitive.attributes)
+        {
+            auto &accessor = gltf.accessors[pair.second];
+            mesh->AddVertexAttribute(pair.first, storage.get_from_accessor(accessor));
+        }
+        mesh->Indices = storage.get_from_accessor(gltf.accessors[gltfPrimitive.indices]);
+
+        mesh->WholeSubmesh(materials[gltfPrimitive.material]);
+    }
+    return group;
+}
+
 } // namespace scene
 } // namespace agv

@@ -4,6 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/dependencies/simplegltf/simplegltf",
                 "${env:VCPKG_DIR}/installed/x64-windows/include/**"
             ],
             "defines": [
