@@ -117,34 +117,34 @@ namespace agv {
 			{
 			case scene::Mesh::Triangles:
 			{
-				vao = VertexArray::CreateTriangles(mesh->GetVertices().GetValueCount(),
-					(float*)mesh->GetVertices().Bytes.data(),
-					(float*)mesh->GetColors().Bytes.data());
+				vao = VertexArray::CreateTriangles(mesh->GetVertices().get_count(),
+					(float*)mesh->GetVertices().data,
+					(float*)mesh->GetColors().data);
 				break;
 			}
 
 			case scene::Mesh::Lines:
 			{
-				vao = VertexArray::CreateLines(mesh->GetVertices().GetValueCount(),
-					(float*)mesh->GetVertices().Bytes.data(),
-					(float*)mesh->GetColors().Bytes.data());
+				vao = VertexArray::CreateLines(mesh->GetVertices().get_count(),
+					(float*)mesh->GetVertices().data,
+					(float*)mesh->GetColors().data);
 				break;
 			}
 			}
 
 			if (vao) {
 				auto &indices = mesh->GetIndices();
-				if (!indices.Bytes.empty()) {
+				if (indices.data) {
 					auto ibo = std::make_shared<VertexBuffer>();
-					ibo->BufferData(true, indices.Bytes.data(), indices.Bytes.size());
-					switch (indices.ValueType)
+					ibo->BufferData(true, indices.data, indices.size);
+					switch (indices.valuetype)
 					{
 					case simplegltf::ValueType::UInt16:
-						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_SHORT);
+						vao->SetIndex(ibo, indices.get_count(), GL_UNSIGNED_SHORT);
 						break;
 
 					case simplegltf::ValueType::UInt32:
-						vao->SetIndex(ibo, indices.GetValueCount(), GL_UNSIGNED_INT);
+						vao->SetIndex(ibo, indices.get_count(), GL_UNSIGNED_INT);
 						break;
 					}
 				}

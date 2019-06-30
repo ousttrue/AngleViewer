@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 #include "material.h"
-#include "bytebuffer.h"
 #include <simplegltf/simplegltf.h>
+
 
 namespace agv {
 	namespace scene {
@@ -22,9 +22,9 @@ namespace agv {
 
 			renderer::Material m_material;
 			Topology m_topology = Topology::Triangles;
-			ByteBuffer m_vertices;
-			ByteBuffer m_colors;
-			ByteBuffer m_indices;
+			simplegltf::View m_vertices;
+			simplegltf::View m_colors;
+			simplegltf::View m_indices;
 
 		public:
 
@@ -40,9 +40,9 @@ namespace agv {
 
 			const renderer::Material& GetMaterial()const { return m_material; }
 			Topology GetTopology()const { return m_topology; }
-			const ByteBuffer& GetVertices()const { return m_vertices; }
-			const ByteBuffer& GetColors()const { return m_colors; }
-			const ByteBuffer& GetIndices()const { return m_indices; }
+			const simplegltf::View& GetVertices()const { return m_vertices; }
+			const simplegltf::View& GetColors()const { return m_colors; }
+			const simplegltf::View& GetIndices()const { return m_indices; }
 		};
 	}
 }

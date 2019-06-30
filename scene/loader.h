@@ -2,7 +2,6 @@
 #include <string>
 #include <memory>
 #include <simplegltf/simplegltf.h>
-#include "bytebuffer.h"
 
 
 namespace agv {
