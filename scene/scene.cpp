@@ -40,7 +40,7 @@ Scene::Scene(const renderer::Material &material)
     : m_material(material)
 {
     m_camera = std::make_shared<PerspectiveCamera>();
-    m_cameraNode = Node::Create("_camera");
+    m_cameraNode = std::make_shared<Node>("_camera");
     m_mouseObserver = std::make_shared<OrbitMover>(m_cameraNode);
 
     Setup();
@@ -52,14 +52,23 @@ void Scene::Setup()
     const auto grid_count = 5;
     const auto grid_edge = grid_size * grid_count;
 
-    m_gizmos.push_back(Node::Create("_axis", Mesh::CreateAxis(m_material, grid_edge)));
-    m_gizmos.push_back(Node::Create("_grid", Mesh::CreateGrid(m_material, grid_size, grid_count)));
+    {
+        auto axis = std::make_shared<Node>("_axis");
+        axis->Mesh = Mesh::CreateAxis(m_material, grid_edge);
+        m_gizmos.push_back(axis);
+    }
+    {
+        auto grid = std::make_shared<Node>("_grid");
+        grid->Mesh = Mesh::CreateGrid(m_material, grid_size, grid_count);
+        m_gizmos.push_back(grid);
+    }
 }
 
 void Scene::CreateDefaultScene()
 {
-    auto node = Node::Create("_triangle", Mesh::CreateSampleTriangle(m_material, 1.0f));
-    node->SetAnimation(std::make_shared<NodeRotation>(50.0f));
+    auto node = std::make_shared<Node>("_triangle");
+    node->Mesh = Mesh::CreateSampleTriangle(m_material, 1.0f);
+    node->Animation = std::make_shared<NodeRotation>(50.0f);
     m_nodes.push_back(node);
 }
 
@@ -99,7 +108,10 @@ void Scene::Update(uint32_t now)
     };
     for (auto node : m_nodes)
     {
-        node->Update(time);
+        auto &animation = node->Animation;
+        if(animation){
+            animation->Update(&*node, time);
+        }
     }
 
     ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
@@ -189,15 +201,14 @@ void Scene::Load(const std::wstring &path)
     LOGI << "load: " << path;
     auto &gltf = m_storage.gltf;
 
-    for(auto &gltfMaterial : gltf.materials)
+    for (auto &gltfMaterial : gltf.materials)
     {
-
     }
 
     for (auto &gltfNode : gltf.nodes)
     {
         LOGD << gltfNode.name;
-        auto node = Node::Create(gltfNode.name);
+        auto node = std::make_shared<Node>(gltfNode.name);
 
         if (gltfNode.mesh >= 0)
         {
@@ -214,7 +225,7 @@ void Scene::Load(const std::wstring &path)
                 }
                 mesh->Indices = m_storage.get_from_accessor(primitive.indices);
 
-                node->SetMesh(mesh);
+                node->Mesh = mesh;
             }
         }
 

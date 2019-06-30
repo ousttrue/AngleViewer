@@ -97,9 +97,11 @@ std::shared_ptr<Shader> GLES3Renderer::GetOrCreateShader(const agv::scene::Node 
         return found->second;
     }
 
-    auto mesh = pNode->GetMesh();
+    auto mesh = pNode->Mesh;
     if (!mesh)
+    {
         return nullptr;
+    }
 
     auto shader = Shader::Create(mesh->GetMaterial());
     if (shader)
@@ -117,7 +119,7 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
         return found->second;
     }
 
-    auto mesh = pNode->GetMesh();
+    auto mesh = pNode->Mesh;
     if (!mesh)
     {
         return nullptr;
@@ -129,7 +131,7 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
     {
     case scene::Mesh::Triangles:
     {
-        vao = std::make_shared<VertexArray>(mesh->GetVertexCount());
+        vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount());
         vao->Bind();
         auto found = mesh->VertexAttributes.find("POSITION");
         vao->AddAttribute(found->first, found->second);
@@ -142,7 +144,7 @@ std::shared_ptr<VertexArray> GLES3Renderer::GetOrCreateVertexArray(const agv::sc
 
     case scene::Mesh::Lines:
     {
-        vao = std::make_shared<VertexArray>(mesh->GetVertexCount(), simplegltf::GltfTopologyType::LINES);
+        vao = std::make_shared<VertexArray>((int)mesh->GetVertexCount(), simplegltf::GltfTopologyType::LINES);
         vao->Bind();
         auto found = mesh->VertexAttributes.find("POSITION");
         vao->AddAttribute(found->first, found->second);
