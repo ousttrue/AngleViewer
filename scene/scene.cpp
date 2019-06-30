@@ -186,6 +186,7 @@ void Scene::Load(const std::wstring &path)
     {
         return;
     }
+    LOGI << "load: " << path;
     auto &gltf = m_storage.gltf;
 
     for (auto &gltfNode : gltf.nodes)

@@ -9,12 +9,13 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/AngleViewer.exe",
-            "args": [],
+            "args": [
+                "${env:GLTF_SAMPLE_MODELS}/2.0/Box/glTF-Binary/Box.glb"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
                 {"name": "PATH", "value": "${env:VCPKG_DIR}/installed/x64-windows/bin;${env:PATH}"}
-
             ],
             "externalConsole": true
         }

@@ -37,8 +37,8 @@ std::shared_ptr<Mesh> Mesh::CreateGrid(const renderer::Material &material, float
     auto mesh = std::make_shared<Mesh>();
     mesh->m_material = material;
     mesh->m_topology = Mesh::Lines;
-    mesh->m_vertices = simplegltf::View(vertices, simplegltf::ValueType::FloatVec3);
-    mesh->m_colors = simplegltf::View(colors, simplegltf::ValueType::FloatVec3);
+    mesh->AddVertexAttribute("POSITION", simplegltf::View(vertices, simplegltf::ValueType::FloatVec3));
+    mesh->AddVertexAttribute("COLOR_0", simplegltf::View(colors, simplegltf::ValueType::FloatVec3));
     return mesh;
 }
 
@@ -87,10 +87,10 @@ std::shared_ptr<Mesh> Mesh::CreateAxis(const renderer::Material &material, float
     mesh->m_material = material;
     mesh->m_topology = Mesh::Lines;
 
-    mesh->m_vertices = simplegltf::View::copy(
-        vertices, simplegltf::ValueType::FloatVec3);
-    mesh->m_colors = simplegltf::View::copy(
-        colors, simplegltf::ValueType::FloatVec3);
+    mesh->AddVertexAttribute("POSITION", simplegltf::View::copy(
+                                             vertices, simplegltf::ValueType::FloatVec3));
+    mesh->AddVertexAttribute("COLOR_0", simplegltf::View::copy(
+                                            colors, simplegltf::ValueType::FloatVec3));
     return mesh;
 }
 
@@ -109,8 +109,8 @@ std::shared_ptr<Mesh> Mesh::CreateSampleTriangle(const renderer::Material &mater
 
     auto mesh = std::make_shared<Mesh>();
     mesh->m_material = material;
-    mesh->m_vertices = simplegltf::View::copy(vertices, simplegltf::ValueType::FloatVec3);
-    mesh->m_colors = simplegltf::View::copy(colors, simplegltf::ValueType::FloatVec3);
+    mesh->AddVertexAttribute("POSITION", simplegltf::View::copy(vertices, simplegltf::ValueType::FloatVec3));
+    mesh->AddVertexAttribute("COLOR_0", simplegltf::View::copy(colors, simplegltf::ValueType::FloatVec3));
     return mesh;
 }
 
@@ -124,20 +124,22 @@ std::shared_ptr<Mesh> Mesh::CreateFromGltf(const renderer::Material &material,
     for (int i = 0; i < gltfMesh.primitives.size(); ++i)
     {
         auto &primitive = gltfMesh.primitives[i];
-        mesh->m_vertices = storage.get_from_accessor(primitive.attributes["POSITION"]);
-        mesh->m_colors = storage.get_from_accessor(primitive.attributes["COLOR_0"]);
-        if (mesh->m_colors.get_count() != mesh->m_vertices.get_count())
+        for (auto pair : primitive.attributes)
         {
-            std::vector<glm::vec3> colors(mesh->m_vertices.get_count(), glm::vec3(1.0f));
-            mesh->m_colors = simplegltf::View::copy(colors, simplegltf::ValueType::FloatVec3);
+            if (pair.first != "POSITION")
+            {
+                continue;
+            }
+            mesh->AddVertexAttribute(pair.first, storage.get_from_accessor(pair.second));
         }
+        mesh->Indices = storage.get_from_accessor(primitive.indices);
 
-        mesh->m_indices = storage.get_from_accessor(primitive.indices);
-
-        return mesh;
+        // ToDo
+        break;
     }
 
-    return nullptr;
+    return mesh;
 }
+
 } // namespace scene
 } // namespace agv

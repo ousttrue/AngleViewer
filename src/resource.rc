@@ -2,4 +2,3 @@
 
 ID_VS SHADERSOURCE  "shader.vs"
 ID_FS SHADERSOURCE  "shader.fs"
-

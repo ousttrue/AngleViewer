@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <vector>
 #include <memory>
+#include <unordered_map>
+#include <string>
+#include <simplegltf/simplegltf.h>
 
 
 namespace agv {
@@ -24,7 +27,7 @@ namespace agv {
 		{
 			uint32_t m_vao = 0;
 
-			std::vector<std::shared_ptr<VertexBuffer>> m_attributes;
+			std::unordered_map<std::string, std::shared_ptr<VertexBuffer>> m_attributes;
 
 			uint32_t m_topology;
 			int m_vertexCount;
@@ -34,18 +37,17 @@ namespace agv {
 			uint32_t m_indexType;
 
 		public:
-			VertexArray(uint32_t topology, int vertexCount);
+			VertexArray(int vertexCount, simplegltf::GltfTopologyType topology);
+			VertexArray(int vertexCount) : VertexArray(vertexCount, simplegltf::GltfTopologyType::TRIANGLES)
+			{}
 			~VertexArray();
-			static std::shared_ptr<VertexArray> Create(uint32_t topology, int vertexCount,
-				const float *vertices,
-				const float *colors);
 			static std::shared_ptr<VertexArray> CreateTriangles(int vertexCount, const float *vertices, const float *colors);
 			static std::shared_ptr<VertexArray> CreateLines(int vertexCount, const float *vertices, const float *colors);
 
 			void Bind();
 			void Unbind();
-			void AddAttribute(const std::shared_ptr<VertexBuffer> &vbo, int components);
-			void SetIndex(const std::shared_ptr<VertexBuffer> &vbo, int indexCount, uint32_t indexType);
+			void AddAttribute(const std::string &semantic, const simplegltf::View &view);
+			void SetIndex(const simplegltf::View &view);
 			void Draw();
 		};
 	}
