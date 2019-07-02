@@ -25,7 +25,8 @@
         "lpstr",
         "nlohmann",
         "simplegltf",
-        "stbi"
+        "stbi",
+        "texcoord"
     ],
     "files.associations": {
         "optional": "cpp",

@@ -176,18 +176,20 @@ struct GLES3RendererImpl
             vao->BindSlot(0, position);
         }
 
-        auto normal = vbo->m_attributes["NORMAL"];
-        if (normal)
         {
-            normal->Bind();
-            vao->BindSlot(1, normal);
+            // auto normal = vbo->m_attributes["NORMAL"];
+            // if (normal)
+            // {
+            //     normal->Bind();
+            //     vao->BindSlot(1, normal);
+            // }
         }
 
-        auto tex = vbo->m_attributes["TEXCOORD_0"];
-        if (tex)
+        auto texcoord = vbo->m_attributes["TEXCOORD_0"];
+        if (texcoord)
         {
-            tex->Bind();
-            vao->BindSlot(2, tex);
+            texcoord->Bind();
+            vao->BindSlot(2, texcoord);
         }
 
         if (vbo->m_indices)
@@ -196,6 +198,11 @@ struct GLES3RendererImpl
         }
 
         vao->Unbind();
+        position->Unbind();
+        if (texcoord)
+        {
+            texcoord->Unbind();
+        }
 
         {
             // cleanup
@@ -258,12 +265,7 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
                     shader->SetUniformValue("MVPMatrix", mvp);
 
                     // set texture
-                    if (material->Texture)
-                    {
-                        auto slot = 0;
-                        material->Texture->Bind(slot);
-                        shader->SetUniformValue("Color", slot);
-                    }
+                    material->Set();
 
                     auto vao = m_impl->GetOrCreateVertexArray(&*submesh, vbo, shader);
                     vao->Bind();
@@ -283,7 +285,8 @@ void GLES3Renderer::Draw(agv::scene::Scene *pScene)
     //
     glViewport(0, 0, m_width, m_height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearDepthf(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //
     // setup camera

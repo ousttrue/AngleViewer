@@ -17,6 +17,8 @@ public:
     glm::vec4 Color = glm::vec4(1, 1, 1, 1);
 
     std::shared_ptr<GLES3Texture> Texture;
+
+    void Set();
 };
 
 } // namespace renderer

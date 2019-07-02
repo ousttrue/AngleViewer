@@ -142,8 +142,8 @@ void GLES3VertexArray::Unbind()
 
 void GLES3VertexArray::BindSlot(int slot, const std::shared_ptr<GLES3VertexBuffer> &vbo)
 {
-    glEnableVertexAttribArray(slot);
     glVertexAttribPointer(slot, vbo->GetComponentCount(), GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(slot);
 }
 
 void GLES3VertexArray::UnbindSlot(int slot)
