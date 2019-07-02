@@ -1,15 +1,24 @@
 # AngleViewer
 OpenGL ES Viewer using ANGLE
 
+# ToDo
+
+* [ ] save window state when exit
+* [ ] show background color
+
 # Build
 * Windows10(64bit)
 * VisualStudio2017
 
-## Build ANGLE by vcpkg
+## dependencies by vcpkg
 
 * https://github.com/Microsoft/vcpkg
 
-`> vcpkg.exe install angle:x64-windows`
+set vcpkg root path to environment variable `VCPKG_DIR`.
+
+install packages.
+
+`> vcpkg.exe install angle:x64-windows plog:x64-windows glm:x64-windows nlohmann-json:x64-windows`
 
 ## Create VisualStudio project by CMake
 
@@ -17,5 +26,4 @@ OpenGL ES Viewer using ANGLE
 
 # Execute
 
-Add PATH to `%VCPKG_DIR%/installed/x64-windows/bin` or `%VCPKG_DIR%/installed/x64-windows/debug/bin`
-
+Add PATH to `%VCPKG_DIR%/installed/x64-windows/bin`
