@@ -7,14 +7,14 @@
 
 namespace agv {
 	namespace renderer {
-		class Shader
+		class GLES3Shader
 		{
 			uint32_t m_program = 0;
 
 		public:
-			Shader(uint32_t program);
+			GLES3Shader(uint32_t program);
 
-			static std::shared_ptr<Shader> Create(const scene::Material &material);
+			static std::shared_ptr<GLES3Shader> Create(scene::ShaderType shaderType);
 
 			uint32_t GetUniformLocation(const std::string &name);
 			void SetUniformValue(uint32_t location, const glm::mat4 &m);

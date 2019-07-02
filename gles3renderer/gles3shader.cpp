@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "gles3shader.h"
 #include "shadersourcemanager.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl3.h> 
@@ -43,12 +43,12 @@ static GLuint LoadShader(GLenum type, const char *shaderSrc)
 
 namespace agv {
 	namespace renderer {
-		Shader::Shader(GLuint program) :m_program(program) {
+		GLES3Shader::GLES3Shader(GLuint program) :m_program(program) {
 		}
 
-		std::shared_ptr<Shader> Shader::Create(const scene::Material &material)
+		std::shared_ptr<GLES3Shader> GLES3Shader::Create(scene::ShaderType shaderType)
 		{
-			auto source = ShaderSourceManager::Instance.GetSource(material.ShaderType);
+			auto source = ShaderSourceManager::Instance.GetSource(shaderType);
 			auto vertexShader = LoadShader(GL_VERTEX_SHADER, source->vs.c_str());
 			if (!vertexShader) {
 				return  nullptr;
@@ -123,26 +123,26 @@ namespace agv {
 				}
 			}
 
-			return std::make_shared<Shader>(program);
+			return std::make_shared<GLES3Shader>(program);
 		}
 
-		void Shader::Use()
+		void GLES3Shader::Use()
 		{
 			glUseProgram(m_program);
 		}
 
-		uint32_t Shader::GetUniformLocation(const std::string &name)
+		uint32_t GLES3Shader::GetUniformLocation(const std::string &name)
 		{
 			return glGetUniformLocation(m_program, name.c_str());
 		}
 
-		void Shader::SetUniformValue(uint32_t location, const glm::mat4 &m)
+		void GLES3Shader::SetUniformValue(uint32_t location, const glm::mat4 &m)
 		{
 			if (location < 0)return;
 			glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
 		}
 
-		void Shader::SetUniformValue(const std::string &name, const glm::mat4 &m)
+		void GLES3Shader::SetUniformValue(const std::string &name, const glm::mat4 &m)
 		{
 			auto location = GetUniformLocation(name);
 			SetUniformValue(location, m);

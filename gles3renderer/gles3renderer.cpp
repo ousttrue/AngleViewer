@@ -1,6 +1,8 @@
 ﻿#include "gles3renderer.h"
-#include "shader.h"
-#include "vertexbuffer.h"
+#include "gles3shader.h"
+#include "gles3material.h"
+#include "gles3vertexbuffer.h"
+#include "scene.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl3.h>
 #include <vector>
@@ -13,8 +15,49 @@ namespace renderer
 
 struct GLES3RendererImpl
 {
-    std::unordered_map<uint32_t, std::shared_ptr<VertexBufferGroup>> m_vertexBuffer_map;
-    std::shared_ptr<VertexBufferGroup> GetOrCreateVertexBuffer(const agv::scene::Mesh *pMesh)
+    /// shader
+    std::unordered_map<agv::scene::ShaderType, std::shared_ptr<GLES3Shader>> m_shader_map;
+    std::shared_ptr<GLES3Shader> GetOrCreateShader(agv::scene::ShaderType shaderType)
+    {
+        auto found = m_shader_map.find(shaderType);
+        if (found != m_shader_map.end())
+        {
+            return found->second;
+        }
+
+        auto shader = GLES3Shader::Create(shaderType);
+        if (!shader)
+        {
+            LOGE << "fail to GLES3Shader::Create";
+            return nullptr;
+        }
+
+        m_shader_map.insert(std::make_pair(shaderType, shader));
+        return shader;
+    }
+
+    /// material
+    std::unordered_map<uint32_t, std::shared_ptr<GLES3Material>> m_material_map;
+    std::shared_ptr<GLES3Material> GetOrCreateMaterial(const agv::scene::Material *pMaterial)
+    {
+        auto found = m_material_map.find(pMaterial->GetID());
+        if (found != m_material_map.end())
+        {
+            return found->second;
+        }
+
+        auto material = std::make_shared<GLES3Material>();
+
+        material->Shader = GetOrCreateShader(pMaterial->ShaderType);
+
+        // texture
+
+        return material;
+    }
+
+    /// vertex buffer
+    std::unordered_map<uint32_t, std::shared_ptr<GLES3VertexBufferGroup>> m_vertexBuffer_map;
+    std::shared_ptr<GLES3VertexBufferGroup> GetOrCreateVertexBuffer(const agv::scene::Mesh *pMesh)
     {
         {
             auto found = m_vertexBuffer_map.find(pMesh->GetID());
@@ -24,7 +67,7 @@ struct GLES3RendererImpl
             }
         }
 
-        auto vbo = std::make_shared<VertexBufferGroup>(pMesh->GetVertexCount(), pMesh->Topology);
+        auto vbo = std::make_shared<GLES3VertexBufferGroup>(pMesh->GetVertexCount(), pMesh->Topology);
         m_vertexBuffer_map.insert(std::make_pair(pMesh->GetID(), vbo));
 
         for (auto pair : pMesh->VertexAttributes)
@@ -41,32 +84,11 @@ struct GLES3RendererImpl
         return vbo;
     }
 
-    std::unordered_map<uint32_t, std::shared_ptr<Shader>> m_shader_map;
-    std::shared_ptr<Shader> GetOrCreateShader(const agv::scene::Material *pMaterial)
-    {
-        auto found = m_shader_map.find(pMaterial->GetID());
-        if (found != m_shader_map.end())
-        {
-            return found->second;
-        }
-
-        auto shader = Shader::Create(*pMaterial);
-        if (shader)
-        {
-            m_shader_map.insert(std::make_pair(pMaterial->GetID(), shader));
-        }
-        else
-        {
-            LOGE << "fail to Shader::Create";
-        }
-        return shader;
-    }
-
-    std::unordered_map<uint32_t, std::shared_ptr<VertexArray>> m_vertexArray_map;
-    std::shared_ptr<VertexArray> GetOrCreateVertexArray(
+    std::unordered_map<uint32_t, std::shared_ptr<GLES3VertexArray>> m_vertexArray_map;
+    std::shared_ptr<GLES3VertexArray> GetOrCreateVertexArray(
         const agv::scene::Submesh *pSubmesh,
-        const std::shared_ptr<VertexBufferGroup> &vbo,
-        const std::shared_ptr<Shader> &shader)
+        const std::shared_ptr<GLES3VertexBufferGroup> &vbo,
+        const std::shared_ptr<GLES3Shader> &shader)
     {
         {
             auto found = m_vertexArray_map.find(pSubmesh->GetID());
@@ -76,7 +98,7 @@ struct GLES3RendererImpl
             }
         }
 
-        auto vao = std::make_shared<VertexArray>();
+        auto vao = std::make_shared<GLES3VertexArray>();
         m_vertexArray_map.insert(std::make_pair(pSubmesh->GetID(), vao));
 
         vao->Bind();
@@ -137,8 +159,9 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
             int offset = 0;
             for (auto &submesh : mesh->Submeshes)
             {
-                auto shader = m_impl->GetOrCreateShader(&*submesh->GetMaterial());
-                if (shader)
+                auto material = m_impl->GetOrCreateMaterial(&*submesh->GetMaterial());
+                auto shader = material->Shader;
+                if(shader)
                 {
                     shader->Use();
 
@@ -160,7 +183,7 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
                 }
                 offset += submesh->GetDrawCount();
             }
-            VertexArray::Unbind();
+            GLES3VertexArray::Unbind();
         }
     }
 }
