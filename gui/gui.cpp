@@ -94,7 +94,7 @@ bool GUI::HasFocus()
 bool GUI::IsHover()
 {
     ImGuiIO &io = ImGui::GetIO();
-    return ImGui::IsMouseHoveringAnyWindow();
+    return ImGui::IsMouseHoveringAnyWindow() || io.WantCaptureMouse || io.WantCaptureKeyboard;
 }
 
 void GUI::SetScreenSize(int w, int h)
