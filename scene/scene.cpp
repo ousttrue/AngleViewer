@@ -1,36 +1,7 @@
 #include "scene.h"
 #include "node.h"
-#include <Windows.h>
 #include <plog/Log.h>
-#include <imgui.h>
 #include <fstream>
-
-static std::wstring OpenDialog()
-{
-    OPENFILENAME ofn;        // common dialog box structure
-    TCHAR szFile[260] = {0}; // if using TCHAR macros
-
-    // Initialize OPENFILENAME
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = NULL;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (!GetOpenFileName(&ofn) == TRUE)
-    {
-        // use ofn.lpstrFile
-        return L"";
-    }
-
-    return szFile;
-}
 
 namespace agv
 {
@@ -80,27 +51,11 @@ void Scene::CreateDefaultScene()
     m_model->Root->AddChild(node);
 }
 
-static void DrawNodeRecursive(const std::shared_ptr<Node> &node)
-{
-    ImGui::PushID(&node);
-    bool isOpen = ImGui::TreeNode("%s", node->GetName().c_str());
-    if (isOpen)
-    {
-
-        for (auto &child : node->GetChildren())
-        {
-            DrawNodeRecursive(child);
-        }
-
-        ImGui::TreePop();
-    }
-    ImGui::PopID();
-}
-
 void Scene::Update(uint32_t now)
 {
     auto delta = m_time == 0 ? 0 : now - m_time;
     m_time = now;
+
     m_frameCount++;
     auto seconds = now / 1000;
     if (m_seconds != seconds)
@@ -119,78 +74,6 @@ void Scene::Update(uint32_t now)
     {
         m_model->SetTime(time);
     }
-
-    ImGui::Begin("scene", nullptr, ImGuiWindowFlags_MenuBar);
-    {
-        if (ImGui::BeginMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("Open"))
-                {
-                    auto path = OpenDialog();
-                    if (!path.empty())
-                    {
-                        Load(path);
-                    }
-                }
-
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenuBar();
-        }
-
-        ImGui::Text("time: %d", now);
-        ImGui::Text("fps: %d", m_fps);
-
-        if (m_model)
-        {
-            for (auto &node : m_model->Root->GetChildren())
-            {
-                DrawNodeRecursive(node);
-            }
-        }
-
-        ImGui::End();
-    }
-
-    ImGui::Begin("gltf");
-    {
-        if (m_model)
-        {
-            //ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
-
-            //ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Once);
-            if (ImGui::TreeNode("nodes"))
-            {
-
-                ImGui::Columns(2);
-                for (int i = 0; i < m_model->Nodes.size(); ++i)
-                {
-                    auto &node = m_model->Nodes[i];
-                    ImGui::PushID(node->GetName().c_str());
-
-                    bool isOpen = ImGui::TreeNode("%s", node->GetName().c_str());
-                    ImGui::NextColumn();
-                    if (isOpen)
-                    {
-                        ImGui::Text("%03d", i);
-                        ImGui::TreePop();
-                    }
-                    ImGui::PopID();
-                    ImGui::NextColumn();
-
-                    ++i;
-                }
-                ImGui::Columns(1);
-
-                ImGui::TreePop();
-            }
-        }
-        ImGui::End();
-    }
-
-    //ImGui::ShowDemoWindow();
 }
 
 void Scene::Load(const std::wstring &path)

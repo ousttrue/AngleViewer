@@ -19,6 +19,11 @@ class Scene
     uint32_t m_seconds = 0;
     uint32_t m_fps = 0;
 
+public:
+    uint32_t GetTime() const { return m_time; }
+    uint32_t GetFps() const { return m_fps; }
+
+private:
     std::shared_ptr<Material> m_gizmoMaterial;
 
     std::shared_ptr<Model> m_model;

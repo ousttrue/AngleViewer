@@ -230,7 +230,7 @@ static int mainloop(HWND hwnd)
             g_gui->Begin(delta * 0.001f);
 
             g_scene->Update(now);
-            g_guiState.Update();
+            g_guiState.Update(g_scene);
 
             g_renderer->Draw(g_scene);
             g_gui->End();
