@@ -1,4 +1,6 @@
 #include "resource.h"
 
-ID_VS SHADERSOURCE  "shader.vs"
-ID_FS SHADERSOURCE  "shader.fs"
+ID_GIZMO_VS SHADERSOURCE  "shaders/gizmo.vs"
+ID_GIZMO_FS SHADERSOURCE  "shaders/gizmo.fs"
+ID_UNLIT_VS SHADERSOURCE  "shaders/unlit.vs"
+ID_UNLIT_FS SHADERSOURCE  "shaders/unlit.fs"

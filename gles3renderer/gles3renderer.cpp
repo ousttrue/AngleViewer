@@ -1,18 +1,55 @@
 ﻿#include "gles3renderer.h"
-#include "gles3shader.h"
-#include "gles3material.h"
 #include "gles3vertexbuffer.h"
+#include "gles3material.h"
+#include "gles3shader.h"
+#include "gles3texture.h"
 #include "scene.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GLES3/gl3.h>
 #include <vector>
+#include <exception>
 #include <plog/Log.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+struct StbImage
+{
+    unsigned char *data = nullptr;
+    int width = 0;
+    int height = 0;
+    int channels = 0;
+
+    int size() const
+    {
+        return width * height * channels;
+    }
+
+    bool Load(const std::byte *src, size_t size)
+    {
+        data = stbi_load_from_memory(reinterpret_cast<const stbi_uc *>(src), static_cast<int>(size),
+                                     &width, &height, &channels, 4);
+        return data != 0;
+    }
+
+    ~StbImage()
+    {
+        if (data)
+        {
+            stbi_image_free(data);
+            data = 0;
+        }
+    }
+};
 
 namespace agv
 {
 namespace renderer
 {
 
+///
+/// resource manager
+///
 struct GLES3RendererImpl
 {
     /// shader
@@ -25,15 +62,40 @@ struct GLES3RendererImpl
             return found->second;
         }
 
-        auto shader = GLES3Shader::Create(shaderType);
+        auto shader = GLES3Shader::Create((int)shaderType);
         if (!shader)
         {
             LOGE << "fail to GLES3Shader::Create";
             return nullptr;
         }
-
         m_shader_map.insert(std::make_pair(shaderType, shader));
+
         return shader;
+    }
+
+    /// texture
+    std::unordered_map<uint32_t, std::shared_ptr<GLES3Texture>> m_texture_map;
+    std::shared_ptr<GLES3Texture> GetOrCreateTexture(const agv::scene::Texture *pTexture)
+    {
+        auto found = m_texture_map.find(pTexture->GetID());
+        if (found != m_texture_map.end())
+        {
+            return found->second;
+        }
+
+        auto texture = std::make_shared<GLES3Texture>();
+        m_texture_map.insert(std::make_pair(pTexture->GetID(), texture));
+
+        StbImage image;
+        if (!image.Load(pTexture->Bytes.data, pTexture->Bytes.size))
+        {
+            LOGE << "fail to load image: " << pTexture->GetName();
+            return nullptr;
+        }
+
+        texture->SetImage(image.width, image.height, image.channels, (const std::byte *)image.data);
+
+        return texture;
     }
 
     /// material
@@ -47,10 +109,15 @@ struct GLES3RendererImpl
         }
 
         auto material = std::make_shared<GLES3Material>();
+        m_material_map.insert(std::make_pair(pMaterial->GetID(), material));
 
         material->Shader = GetOrCreateShader(pMaterial->ShaderType);
 
         // texture
+        if (pMaterial->ColorTexture)
+        {
+            material->Texture = GetOrCreateTexture(&*pMaterial->ColorTexture);
+        }
 
         return material;
     }
@@ -105,14 +172,27 @@ struct GLES3RendererImpl
 
         auto position = vbo->m_attributes["POSITION"];
         {
-            // 使うやつだけVAOに登録する
             position->Bind();
             vao->BindSlot(0, position);
+        }
 
-            if (vbo->m_indices)
-            {
-                vbo->m_indices->Bind();
-            }
+        auto normal = vbo->m_attributes["NORMAL"];
+        if (normal)
+        {
+            normal->Bind();
+            vao->BindSlot(1, normal);
+        }
+
+        auto tex = vbo->m_attributes["TEXCOORD_0"];
+        if (tex)
+        {
+            tex->Bind();
+            vao->BindSlot(2, tex);
+        }
+
+        if (vbo->m_indices)
+        {
+            vbo->m_indices->Bind();
         }
 
         vao->Unbind();
@@ -161,7 +241,7 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
             {
                 auto material = m_impl->GetOrCreateMaterial(&*submesh->GetMaterial());
                 auto shader = material->Shader;
-                if(shader)
+                if (shader)
                 {
                     shader->Use();
 
@@ -176,6 +256,14 @@ void GLES3Renderer::DrawNode(const agv::scene::ICamera *camera, const agv::scene
 
                     glm::mat4 mvp = projection * view * model;
                     shader->SetUniformValue("MVPMatrix", mvp);
+
+                    // set texture
+                    if (material->Texture)
+                    {
+                        auto slot = 0;
+                        material->Texture->Bind(slot);
+                        shader->SetUniformValue("Color", slot);
+                    }
 
                     auto vao = m_impl->GetOrCreateVertexArray(&*submesh, vbo, shader);
                     vao->Bind();

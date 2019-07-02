@@ -333,13 +333,13 @@ int WINAPI WinMain(
     // set shader
     agv::renderer::ShaderSourceManager::Instance.SetSource(
         agv::scene::ShaderType::gizmo,
-        to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
-        to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE)));
+        to_string(GetResource(hInstance, ID_GIZMO_VS, RESOURCE_TYPE)),
+        to_string(GetResource(hInstance, ID_GIZMO_FS, RESOURCE_TYPE)));
     // set shader
     agv::renderer::ShaderSourceManager::Instance.SetSource(
         agv::scene::ShaderType::unlit,
-        to_string(GetResource(hInstance, ID_VS, RESOURCE_TYPE)),
-        to_string(GetResource(hInstance, ID_FS, RESOURCE_TYPE)));
+        to_string(GetResource(hInstance, ID_UNLIT_VS, RESOURCE_TYPE)),
+        to_string(GetResource(hInstance, ID_UNLIT_FS, RESOURCE_TYPE)));
 
     agv::scene::Scene scene;
 
