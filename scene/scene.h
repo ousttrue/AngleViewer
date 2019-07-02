@@ -6,6 +6,7 @@
 #include "node.h"
 #include "material.h"
 #include "model.h"
+#include "texture.h"
 
 namespace agv
 {

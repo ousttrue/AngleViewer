@@ -135,64 +135,90 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     {
         auto x = GET_X_LPARAM(lParam);
         auto y = GET_Y_LPARAM(lParam);
-        g_scene->GetMouseObserver()->MouseMove(x, y);
         g_gui->MouseMove(x, y);
+        g_scene->GetMouseObserver()->MouseMove(x, y);
         return 0;
     }
 
     case WM_LBUTTONDOWN:
     {
         m_capture.Down(MouseCapture::LEFT, hwnd);
-        g_scene->GetMouseObserver()->MouseLeftDown();
-        g_gui->MouseLeftDown();
+        if (g_gui->IsHover())
+        {
+            g_gui->MouseLeftDown();
+        }
+        else
+        {
+            g_scene->GetMouseObserver()->MouseLeftDown();
+        }
         return 0;
     }
 
     case WM_LBUTTONUP:
     {
         m_capture.Up(MouseCapture::LEFT);
-        g_scene->GetMouseObserver()->MouseLeftUp();
         g_gui->MouseLeftUp();
+        g_scene->GetMouseObserver()->MouseLeftUp();
         return 0;
     }
 
     case WM_MBUTTONDOWN:
     {
         m_capture.Down(MouseCapture::MIDDLE, hwnd);
-        g_scene->GetMouseObserver()->MouseMiddleDown();
-        g_gui->MouseMiddleDown();
+        if (g_gui->IsHover())
+        {
+            g_gui->MouseMiddleDown();
+        }
+        else
+        {
+            g_scene->GetMouseObserver()->MouseMiddleDown();
+        }
         return 0;
     }
 
     case WM_MBUTTONUP:
     {
         m_capture.Up(MouseCapture::MIDDLE);
-        g_scene->GetMouseObserver()->MouseMiddleUp();
         g_gui->MouseMiddleUp();
+        g_scene->GetMouseObserver()->MouseMiddleUp();
         return 0;
     }
 
     case WM_RBUTTONDOWN:
     {
         m_capture.Down(MouseCapture::RIGHT, hwnd);
-        g_scene->GetMouseObserver()->MouseRightDown();
-        g_gui->MouseRightDown();
+        if (g_gui->IsHover())
+        {
+            g_gui->MouseRightDown();
+        }
+        else
+        {
+            g_scene->GetMouseObserver()->MouseRightDown();
+        }
         return 0;
     }
 
     case WM_RBUTTONUP:
     {
         m_capture.Up(MouseCapture::RIGHT);
-        g_scene->GetMouseObserver()->MouseRightUp();
         g_gui->MouseRightUp();
+        g_scene->GetMouseObserver()->MouseRightUp();
         return 0;
     }
 
     case WM_MOUSEWHEEL:
     {
         auto d = GET_WHEEL_DELTA_WPARAM(wParam);
-        g_scene->GetMouseObserver()->MouseWheel(d);
-        g_gui->MouseWheel(d);
+
+        if (g_gui->IsHover())
+        {
+            g_gui->MouseWheel(d);
+        }
+        else
+        {
+            g_scene->GetMouseObserver()->MouseWheel(d);
+        }
+
         return 0;
     }
     }

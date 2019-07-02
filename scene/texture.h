@@ -6,7 +6,7 @@ namespace agv
 namespace scene
 {
 
-class Texture : ObjectBase
+class Texture : public ObjectBase
 {
     std::string m_mime;
     simplegltf::View m_bytes;

@@ -123,7 +123,7 @@ std::shared_ptr<MeshGroup> MeshGroup::Load(const simplegltf::Storage &storage,
                                            const std::vector<std::shared_ptr<Material>> &materials)
 {
     auto &gltf = storage.gltf;
-    auto group = std::make_shared<MeshGroup>();
+    auto group = std::make_shared<MeshGroup>(gltfMesh.name);
 
     for (auto &gltfPrimitive : gltfMesh.primitives)
     {
@@ -140,6 +140,13 @@ std::shared_ptr<MeshGroup> MeshGroup::Load(const simplegltf::Storage &storage,
         mesh->WholeSubmesh(materials[gltfPrimitive.material]);
     }
     return group;
+}
+
+std::shared_ptr<MeshGroup> MeshGroup::Create(const std::shared_ptr<Mesh> &mesh)
+{
+    auto meshGroup = std::make_shared<MeshGroup>(mesh->GetName());
+    meshGroup->Meshes.push_back(mesh);
+    return meshGroup;
 }
 
 } // namespace scene

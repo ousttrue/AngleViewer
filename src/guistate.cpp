@@ -1,5 +1,4 @@
 #include "guistate.h"
-// #include <gui.h>
 #include <scene.h>
 #include <imgui.h>
 #include <memory>
@@ -97,6 +96,60 @@ void GuiState::Update(agv::scene::Scene *scene)
             //ImGui::Text("generator: %s", m_gltf->asset.generator.c_str());
 
             //ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Once);
+            if (ImGui::TreeNode("textures"))
+            {
+                auto &textures = model->Textures;
+                for (int i = 0; i < textures.size(); ++i)
+                {
+                    auto &texture = textures[i];
+                    ImGui::PushID(texture->GetID());
+                    bool isOpen = ImGui::TreeNode("%s", texture->GetName().c_str());
+                    if(isOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                    ImGui::PopID();
+                }
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("materials"))
+            {
+                auto &materials = model->Materials;
+                for (int i = 0; i < materials.size(); ++i)
+                {
+                    auto &material = materials[i];
+                    ImGui::PushID(material->GetID());
+                    bool isOpen = ImGui::TreeNode("%s", material->GetName().c_str());
+                    if(isOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                    ImGui::PopID();
+                }
+
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("meshes"))
+            {
+                auto &meshes = model->Meshes;
+                for (int i = 0; i < meshes.size(); ++i)
+                {
+                    auto &mesh = meshes[i];
+                    ImGui::PushID(mesh->GetID());
+                    bool isOpen = ImGui::TreeNode("%s", mesh->GetName().c_str());
+                    if(isOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                    ImGui::PopID();
+                }
+
+                ImGui::TreePop();
+            }
+
             if (ImGui::TreeNode("nodes"))
             {
 
@@ -104,7 +157,7 @@ void GuiState::Update(agv::scene::Scene *scene)
                 for (int i = 0; i < model->Nodes.size(); ++i)
                 {
                     auto &node = model->Nodes[i];
-                    ImGui::PushID(node->GetName().c_str());
+                    ImGui::PushID(node->GetID());
 
                     bool isOpen = ImGui::TreeNode("%s", node->GetName().c_str());
                     ImGui::NextColumn();
@@ -115,8 +168,6 @@ void GuiState::Update(agv::scene::Scene *scene)
                     }
                     ImGui::PopID();
                     ImGui::NextColumn();
-
-                    ++i;
                 }
                 ImGui::Columns(1);
 
@@ -126,7 +177,8 @@ void GuiState::Update(agv::scene::Scene *scene)
         ImGui::End();
     }
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
+
     ImGui::Begin("logger", &loggerOpen);
     {
         ImGui::BeginChild("scrolling");

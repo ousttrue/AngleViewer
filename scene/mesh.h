@@ -58,22 +58,20 @@ public:
     static std::shared_ptr<Mesh> CreateSampleTriangle(float size);
 };
 
-class MeshGroup
+class MeshGroup : public ObjectBase
 {
 public:
-    std::string Name;
     std::vector<std::shared_ptr<Mesh>> Meshes;
+
+    MeshGroup(const std::string &name) : ObjectBase(name)
+    {
+    }
 
     static std::shared_ptr<MeshGroup> Load(const simplegltf::Storage &storage,
                                            const simplegltf::GltfMesh &gltfMesh,
                                            const std::vector<std::shared_ptr<Material>> &materials);
 
-    static std::shared_ptr<MeshGroup> Create(const std::shared_ptr<Mesh> &mesh)
-    {
-        auto meshGroup = std::make_shared<MeshGroup>();
-        meshGroup->Meshes.push_back(mesh);
-        return meshGroup;
-    }
+    static std::shared_ptr<MeshGroup> Create(const std::shared_ptr<Mesh> &mesh);
 };
 
 } // namespace scene

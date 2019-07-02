@@ -79,6 +79,24 @@ void GUI::MouseWheel(int d)
     }
 }
 
+bool GUI::HasMouseCapture()
+{
+    ImGuiIO &io = ImGui::GetIO();
+    return io.WantCaptureMouse;
+}
+
+bool GUI::HasFocus()
+{
+    ImGuiIO &io = ImGui::GetIO();
+    return io.WantCaptureKeyboard;
+}
+
+bool GUI::IsHover()
+{
+    ImGuiIO &io = ImGui::GetIO();
+    return ImGui::IsMouseHoveringAnyWindow();
+}
+
 void GUI::SetScreenSize(int w, int h)
 {
     ImGuiIO &io = ImGui::GetIO();

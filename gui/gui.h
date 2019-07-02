@@ -18,6 +18,10 @@ public:
     void MouseRightUp();
     void MouseWheel(int d);
 
+    bool HasMouseCapture();
+    bool HasFocus();
+    bool IsHover();
+
     void SetScreenSize(int w, int h);
 
     void Begin(float deltaSeconds);

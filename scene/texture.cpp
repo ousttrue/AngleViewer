@@ -7,10 +7,15 @@ namespace scene
 
 std::shared_ptr<Texture> Texture::Load(const simplegltf::Storage &storage, const simplegltf::GltfTexture &gltfTexture)
 {
-    auto texture = std::make_shared<Texture>(gltfTexture.name);
     auto &gltf = storage.gltf;
-
     auto &image = gltf.images[gltfTexture.source];
+
+    auto name = gltfTexture.name;
+    if(name.empty()){
+        name = image.name;
+    }
+
+    auto texture = std::make_shared<Texture>(name);
 
     if (image.uri.empty())
     {
