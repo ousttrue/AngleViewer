@@ -1,12 +1,12 @@
 #include <Windows.h>
 #include <windowsx.h>
-#include <imgui.h>
 #include "resource.h"
 #include "eglapp.h"
 
 #include <gles3renderer.h>
 #include <scene.h>
 #include <gui.h>
+#include "guistate.h"
 
 #include <plog/Log.h>
 #include <plog/Appenders/DebugOutputAppender.h>
@@ -27,7 +27,8 @@ const auto WINDOW_NAME = L"AngleViewer";
 agv::renderer::GLES3Renderer *g_renderer = nullptr;
 agv::scene::Scene *g_scene = nullptr;
 agv::gui::GUI *g_gui = nullptr;
-std::string g_logger;
+GuiState g_guiState;
+
 namespace plog
 {
 template <class Formatter>
@@ -206,8 +207,6 @@ static int mainloop(HWND hwnd)
 
     DWORD lastTime = 0;
 
-    bool loggerOpen = true;
-
     while (true)
     {
         // message pump
@@ -231,38 +230,7 @@ static int mainloop(HWND hwnd)
             g_gui->Begin(delta * 0.001f);
 
             g_scene->Update(now);
-
-            ImGui::Begin("logger", &loggerOpen);
-            {
-                ImGui::BeginChild("scrolling");
-                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
-                //if (copy) ImGui::LogToClipboard();
-
-                /*
-				if (Filter.IsActive())
-				{
-					const char* buf_begin = Buf.begin();
-					const char* line = buf_begin;
-					for (int line_no = 0; line != NULL; line_no++)
-					{
-						const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
-						if (Filter.PassFilter(line, line_end))
-							ImGui::TextUnformatted(line, line_end);
-						line = line_end && line_end[1] ? line_end + 1 : NULL;
-					}
-				}
-				else
-				*/
-                {
-                    ImGui::TextUnformatted(g_logger.c_str());
-                }
-
-                ImGui::SetScrollHere(1.0f);
-
-                ImGui::PopStyleVar();
-                ImGui::EndChild();
-                ImGui::End();
-            }
+            g_guiState.Update();
 
             g_renderer->Draw(g_scene);
             g_gui->End();
@@ -316,7 +284,7 @@ int WINAPI WinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     //static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
-    static plog::ImGuiAppender<plog::TxtFormatter> appender(&g_logger);
+    static plog::ImGuiAppender<plog::TxtFormatter> appender(&g_guiState.logger);
     plog::init(plog::verbose, &appender);
 
     // setup window
