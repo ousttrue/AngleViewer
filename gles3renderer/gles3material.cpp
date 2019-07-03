@@ -18,8 +18,8 @@ void GLES3Material::Set()
         Shader->SetUniformValue("Color", slot);
     }
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
     glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
     glDisable(GL_CULL_FACE);
 }
 
