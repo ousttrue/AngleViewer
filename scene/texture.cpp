@@ -17,17 +17,7 @@ std::shared_ptr<Texture> Texture::Load(const simplegltf::Storage &storage, const
 
     auto texture = std::make_shared<Texture>(name);
 
-    if (image.uri.empty())
-    {
-        // from buffer
-        auto &bufferView = gltf.bufferViews[image.bufferView];
-        texture->SetBytes(image.mimeType, storage.get_from_bufferView(bufferView));
-    }
-    else
-    {
-        // external file
-        texture->SetBytes(image.mimeType, storage.get_from_uri(image.uri));
-    }
+    texture->SetBytes(image.mimeType, storage.get_from_image(image));
 
     return texture;
 }
