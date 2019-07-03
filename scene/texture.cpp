@@ -26,7 +26,7 @@ std::shared_ptr<Texture> Texture::Load(const simplegltf::Storage &storage, const
     else
     {
         // external file
-        throw std::exception("not implemented");
+        texture->SetBytes(image.mimeType, storage.get_from_uri(image.uri));
     }
 
     return texture;
