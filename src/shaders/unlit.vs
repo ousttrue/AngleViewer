@@ -14,7 +14,8 @@ uniform mat4 MVPMatrix;
 
 void main()
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(v_Position, 1);
+    // gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(v_Position, 1);
+    gl_Position = MVPMatrix * vec4(v_Position, 1);
     f_Normal = (ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(v_Normal, 0)).xyz;
     f_TexCoord = v_TexCoord;
 }
