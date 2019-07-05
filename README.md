@@ -3,7 +3,7 @@ OpenGL ES Viewer using ANGLE
 
 # ToDo
 
-* [ ] save window state when exit
+* [x] save and restore window placement
 * [ ] show background color
 
 # Build
