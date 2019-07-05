@@ -56,7 +56,6 @@ static void LoadResource(HINSTANCE hInstance)
         to_string(GetResource((HINSTANCE)hInstance, ID_UNLIT_FS, RESOURCE_TYPE)));
 }
 
-
 ///
 /// globals
 ///
@@ -147,7 +146,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
     case WM_ERASEBKGND:
     {
-        return 0;
+        static int s_counter = 0;
+        if (s_counter++)
+        {
+            return 0;
+        }
+        break;
     }
 
     case WM_SIZE:
@@ -345,7 +349,8 @@ int WINAPI WinMain(
     wndclass.hInstance = GetModuleHandle(NULL);
     wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wndclass.hbrBackground = NULL;
+    wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    ;
     wndclass.lpszMenuName = NULL;
     wndclass.lpszClassName = CLASS_NAME;
     wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
