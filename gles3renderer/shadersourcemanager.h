@@ -25,9 +25,7 @@ class ShaderSourceManager
 {
     std::unordered_map<scene::ShaderType, std::shared_ptr<ShaderSource>> m_sourceMap;
 
-    ShaderSourceManager()
-    {
-    }
+    ShaderSourceManager();
 
 public:
     std::shared_ptr<ShaderSource> GetSource(scene::ShaderType shaderType);

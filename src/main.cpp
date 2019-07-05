@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <windowsx.h>
-#include "resource.h"
 #include "eglapp.h"
 
 #include <gles3renderer.h>
@@ -13,13 +12,48 @@
 #include <assert.h>
 #include <string>
 #include <stdint.h>
+#include "resource.h"
 
 ///
 /// const
 ///
-const auto RESOURCE_TYPE = L"SHADERSOURCE";
 const auto CLASS_NAME = L"AngleViewerWindow";
 const auto WINDOW_NAME = L"AngleViewer";
+
+///
+/// ShaderResource
+///
+const auto RESOURCE_TYPE = L"SHADERSOURCE";
+static std::string to_string(const std::vector<uint8_t> &src)
+{
+    return std::string(src.begin(), src.end());
+}
+static std::vector<uint8_t> GetResource(HINSTANCE hInst, int id, const wchar_t *resource_type)
+{
+    auto hRes = FindResource(hInst, MAKEINTRESOURCE(id), resource_type);
+    auto hMem = LoadResource(hInst, hRes);
+    auto size = SizeofResource(hInst, hRes);
+    auto locked = LockResource(hMem);
+    std::vector<uint8_t> data(size);
+    memcpy(data.data(), locked, size);
+    FreeResource(hMem);
+    return data;
+}
+
+static void LoadResource(HINSTANCE hInstance)
+{
+    // set shader
+    agv::renderer::ShaderSourceManager::Instance.SetSource(
+        agv::scene::ShaderType::gizmo,
+        to_string(GetResource((HINSTANCE)hInstance, ID_GIZMO_VS, RESOURCE_TYPE)),
+        to_string(GetResource((HINSTANCE)hInstance, ID_GIZMO_FS, RESOURCE_TYPE)));
+
+    // set shader
+    agv::renderer::ShaderSourceManager::Instance.SetSource(
+        agv::scene::ShaderType::unlit,
+        to_string(GetResource((HINSTANCE)hInstance, ID_UNLIT_VS, RESOURCE_TYPE)),
+        to_string(GetResource((HINSTANCE)hInstance, ID_UNLIT_FS, RESOURCE_TYPE)));
+}
 
 ///
 /// globals
@@ -268,23 +302,6 @@ static int mainloop(HWND hwnd)
     return 0;
 }
 
-static std::vector<uint8_t> GetResource(HINSTANCE hInst, int id, const wchar_t *resource_type)
-{
-    auto hRes = FindResource(hInst, MAKEINTRESOURCE(id), resource_type);
-    auto hMem = LoadResource(hInst, hRes);
-    auto size = SizeofResource(hInst, hRes);
-    auto locked = LockResource(hMem);
-    std::vector<uint8_t> data(size);
-    memcpy(data.data(), locked, size);
-    FreeResource(hMem);
-    return data;
-}
-
-static std::string to_string(const std::vector<uint8_t> &src)
-{
-    return std::string(src.begin(), src.end());
-}
-
 static std::wstring SjisToUnicode(const std::string &src)
 {
     auto size = MultiByteToWideChar(CP_OEMCP, 0, src.c_str(), -1, NULL, 0);
@@ -309,6 +326,8 @@ int WINAPI WinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    LoadResource(hInstance);
+
     //static plog::DebugOutputAppender<plog::TxtFormatter> debugOutputAppender;
     static plog::ImGuiAppender<plog::TxtFormatter> appender(&g_guiState.logger);
     plog::init(plog::verbose, &appender);
@@ -329,17 +348,6 @@ int WINAPI WinMain(
     wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
     RegisterClassEx(&wndclass);
-
-    // set shader
-    agv::renderer::ShaderSourceManager::Instance.SetSource(
-        agv::scene::ShaderType::gizmo,
-        to_string(GetResource(hInstance, ID_GIZMO_VS, RESOURCE_TYPE)),
-        to_string(GetResource(hInstance, ID_GIZMO_FS, RESOURCE_TYPE)));
-    // set shader
-    agv::renderer::ShaderSourceManager::Instance.SetSource(
-        agv::scene::ShaderType::unlit,
-        to_string(GetResource(hInstance, ID_UNLIT_VS, RESOURCE_TYPE)),
-        to_string(GetResource(hInstance, ID_UNLIT_FS, RESOURCE_TYPE)));
 
     agv::scene::Scene scene;
 

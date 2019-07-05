@@ -1,5 +1,8 @@
 #include "shadersourcemanager.h"
+#include "material.h"
 #include <plog/Log.h>
+#include <windows.h>
+
 
 namespace agv
 {
@@ -7,6 +10,10 @@ namespace renderer
 {
 
 ShaderSourceManager ShaderSourceManager::Instance;
+
+ShaderSourceManager::ShaderSourceManager()
+{
+}
 
 std::shared_ptr<ShaderSource> ShaderSourceManager::GetSource(scene::ShaderType shaderType)
 {
